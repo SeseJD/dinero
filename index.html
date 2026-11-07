@@ -1,0 +1,3135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' data: blob:; worker-src 'self'; manifest-src 'self'; form-action 'none'; base-uri 'none'">
+<meta name="color-scheme" content="light dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Dinero">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#1e6b52">
+<title>Dinero</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231e6b52'/%3E%3Ctext x='32' y='45' font-size='38' font-family='Georgia,serif' font-weight='700' text-anchor='middle' fill='%23fff'%3E%24%3C/text%3E%3C/svg%3E">
+<style>
+:root {
+  --bg: #f4f3ee;
+  --surface: #ffffff;
+  --surface-2: #f8f8f5;
+  --ink: #1b2420;
+  --muted: #5f6b65;
+  --line: #e1e0d8;
+  --accent: #1e6b52;
+  --accent-ink: #ffffff;
+  --accent-soft: #e2efe9;
+  --in: #1c7a4d;
+  --out: #1b2420;
+  --neg: #b3261e;
+  --warn: #8a5300;
+  --warn-soft: #fbefd9;
+  --bad: #b3261e;
+  --bad-soft: #fbe3e1;
+  --ok-soft: #e0f1e7;
+  --info-soft: #e5ecf6;
+  --info: #2c5282;
+  --shadow: 0 1px 2px rgba(20, 30, 25, .06), 0 2px 8px rgba(20, 30, 25, .05);
+  --radius: 12px;
+  --tap: 44px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111513; --surface: #1a201d; --surface-2: #202724; --ink: #e6ebe8; --muted: #9aa69f; --line: #2d3531;
+    --accent: #4fb88e; --accent-ink: #0d1411; --accent-soft: #1f3a2f; --in: #5cc795; --out: #e6ebe8; --neg: #ff8a80;
+    --warn: #f0b45a; --warn-soft: #3a2d17; --bad: #ff8a80; --bad-soft: #3d1f1d; --ok-soft: #1c3428; --info-soft: #1d2a3b; --info: #9cc0f0;
+    --shadow: none; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111513; --surface: #1a201d; --surface-2: #202724; --ink: #e6ebe8; --muted: #9aa69f; --line: #2d3531;
+  --accent: #4fb88e; --accent-ink: #0d1411; --accent-soft: #1f3a2f; --in: #5cc795; --out: #e6ebe8; --neg: #ff8a80;
+  --warn: #f0b45a; --warn-soft: #3a2d17; --bad: #ff8a80; --bad-soft: #3d1f1d; --ok-soft: #1c3428; --info-soft: #1d2a3b; --info: #9cc0f0;
+  --shadow: none; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+}
+h1, h2, h3 { margin: 0; line-height: 1.2; }
+h1 { font-size: 1.5rem; letter-spacing: -.01em; }
+h2 { font-size: 1.12rem; }
+h3 { font-size: 1rem; }
+p { margin: .4em 0; }
+a { color: var(--accent); }
+.muted { color: var(--muted); }
+.small { font-size: .85rem; }
+.money, .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.neg { color: var(--neg); }
+.in { color: var(--in); }
+.hidden { display: none !important; }
+
+/* ---------- Top bar & tabs ---------- */
+.app { max-width: 1240px; margin: 0 auto; min-height: 100vh; }
+.topbar {
+  position: sticky; top: 0; z-index: 20; background: var(--bg);
+  border-bottom: 1px solid var(--line); padding: env(safe-area-inset-top) 16px 0;
+}
+.brand { display: flex; align-items: center; gap: 10px; padding: 12px 0 6px; width: fit-content; }
+.logo {
+  width: 30px; height: 30px; border-radius: 8px; background: var(--accent); color: var(--accent-ink);
+  display: grid; place-items: center; font: 700 19px/1 Georgia, "Times New Roman", serif;
+}
+.brand-name { font: 700 1.3rem/1 Georgia, "Times New Roman", serif; letter-spacing: .01em; }
+.tabs {
+  display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  margin: 0 -16px; padding: 4px 16px 0;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tabs button {
+  flex: 0 0 auto; border: 0; background: none; color: var(--muted); font: inherit; font-weight: 600; font-size: .92rem;
+  padding: 10px 12px 12px; min-height: var(--tap); border-bottom: 3px solid transparent; cursor: pointer; position: relative;
+}
+.tabs button[aria-current="page"] { color: var(--accent); border-bottom-color: var(--accent); }
+.tabs button .dot { position: absolute; top: 9px; right: 3px; width: 7px; height: 7px; border-radius: 50%; background: var(--warn); }
+@media (min-width: 900px) {
+  .topbar { display: flex; align-items: flex-end; gap: 24px; }
+  .brand { padding: 14px 0 14px; }
+  .tabs { margin: 0; padding: 0; flex-wrap: wrap; }
+}
+
+main { padding: 18px 16px calc(40px + env(safe-area-inset-bottom)); outline: none; }
+.loading { color: var(--muted); }
+.banner { margin: 10px 16px 0; padding: 10px 14px; border-radius: 10px; background: var(--bad-soft); color: var(--bad); font-weight: 600; }
+
+/* ---------- Page header & toolbars ---------- */
+.page-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.page-head .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.section { margin-top: 26px; }
+.section > .page-head { margin-bottom: 10px; }
+.toolbar { display: grid; gap: 8px; grid-template-columns: 1fr 1fr; margin-bottom: 12px; }
+.toolbar .wide { grid-column: 1 / -1; }
+@media (min-width: 900px) {
+  .toolbar { grid-template-columns: 1.2fr 1.2fr .8fr 2fr auto; align-items: end; }
+  .toolbar .wide { grid-column: auto; }
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: var(--tap);
+  padding: 0 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  font: inherit; font-weight: 600; cursor: pointer; text-decoration: none; white-space: nowrap;
+}
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.danger { background: var(--bad); border-color: var(--bad); color: #fff; }
+.btn.danger-ghost { color: var(--bad); border-color: var(--bad-soft); }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--accent); padding: 0 8px; }
+.btn.sm { min-height: 36px; padding: 0 12px; font-size: .88rem; border-radius: 8px; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn:focus-visible, .tabs button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .chip:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 1px;
+}
+.icon-btn {
+  width: var(--tap); height: var(--tap); display: inline-grid; place-items: center; border: 0; border-radius: 10px;
+  background: transparent; color: var(--muted); font-size: 1.15rem; cursor: pointer;
+}
+.icon-btn:hover { background: var(--surface-2); color: var(--ink); }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ---------- Cards ---------- */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+.card + .card { margin-top: 12px; }
+.empty { text-align: center; padding: 34px 20px; }
+.empty .btn { margin: 12px 0 6px; }
+.grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.acct-card { display: flex; flex-direction: column; gap: 4px; }
+.acct-card .acct-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.acct-card .big { font-size: 1.7rem; font-weight: 700; letter-spacing: -.01em; margin-top: 6px; }
+.acct-card.total { background: var(--accent-soft); border-color: transparent; }
+.acct-card .btn { align-self: flex-start; margin-top: 6px; margin-left: -8px; }
+dl.mini { display: flex; gap: 22px; margin: 8px 0 0; }
+dl.mini dt { font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+dl.mini dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.stats { display: grid; gap: 10px; grid-template-columns: repeat(2, 1fr); margin-bottom: 14px; }
+@media (min-width: 700px) { .stats { grid-template-columns: repeat(4, 1fr); } .stats.three { grid-template-columns: repeat(3, 1fr); } }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; text-align: left; font: inherit; color: inherit; }
+button.stat { cursor: pointer; min-height: var(--tap); }
+button.stat[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.stat .label { font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.stat .value { font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat .sub { font-size: .82rem; color: var(--muted); }
+.stat.bad .value { color: var(--bad); }
+
+/* ---------- Coming due ---------- */
+.due-list { list-style: none; margin: 0; padding: 0; }
+.due-list li { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.due-list li:first-child { border-top: 0; }
+.due-list .when { width: 92px; flex: 0 0 auto; font-size: .85rem; color: var(--muted); }
+.due-list .what { flex: 1 1 140px; min-width: 0; }
+.alert-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; text-align: left;
+  background: var(--bad-soft); color: var(--bad); border: 0; border-radius: 10px; padding: 12px 14px; font: inherit; font-weight: 600; cursor: pointer; margin-bottom: 10px; min-height: var(--tap);
+}
+.alert-row.info { background: var(--info-soft); color: var(--info); }
+
+/* ---------- Pills & chips ---------- */
+.pill { display: inline-block; font-size: .75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--muted); white-space: nowrap; vertical-align: middle; border: 0; font-family: inherit; line-height: 1.6; }
+.pill.ok { background: var(--ok-soft); color: var(--in); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.info { background: var(--info-soft); color: var(--info); }
+button.pill { cursor: pointer; min-height: 30px; padding: 2px 12px; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.chip { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 0 14px; min-height: 38px; font: inherit; font-weight: 600; font-size: .9rem; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.seg label { position: relative; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg span { display: inline-flex; align-items: center; justify-content: center; min-height: var(--tap); padding: 0 18px; font-weight: 600; cursor: pointer; }
+.seg input:checked + span { background: var(--accent); color: var(--accent-ink); }
+.seg input:focus-visible + span { outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: -3px; }
+
+/* ---------- Forms ---------- */
+label.field, .field { display: flex; flex-direction: column; gap: 4px; font-size: .85rem; font-weight: 600; color: var(--muted); min-width: 0; }
+input, select, textarea {
+  font: inherit; font-size: 16px; color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 10px; padding: 0 12px; min-height: var(--tap); width: 100%; min-width: 0;
+}
+input[type="date"] { -webkit-appearance: none; appearance: none; display: block; line-height: var(--tap); }
+textarea { padding: 10px 12px; min-height: 70px; resize: vertical; }
+select { -webkit-appearance: none; appearance: none; padding-right: 32px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 17px) 50%, calc(100% - 12px) 50%; background-size: 5px 5px; background-repeat: no-repeat; }
+input[type="checkbox"] { width: auto; min-height: 0; }
+.form-grid { display: grid; gap: 12px; grid-template-columns: 1fr; }
+@media (min-width: 560px) { .form-grid.two { grid-template-columns: 1fr 1fr; } .form-grid .span2 { grid-column: 1 / -1; } }
+.toggle { display: flex; align-items: center; gap: 12px; min-height: var(--tap); font-weight: 600; color: var(--ink); cursor: pointer; font-size: .95rem; }
+.toggle input { appearance: none; -webkit-appearance: none; width: 48px; height: 28px; border-radius: 999px; background: var(--line); position: relative; cursor: pointer; flex: 0 0 auto; border: 0; padding: 0; transition: background .15s; }
+.toggle input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: transform .15s; }
+.toggle input:checked { background: var(--accent); }
+.toggle input:checked::after { transform: translateX(20px); }
+.form-error { color: var(--bad); background: var(--bad-soft); border-radius: 8px; padding: 10px 12px; font-weight: 600; }
+.form-error:empty { display: none; }
+.note { background: var(--info-soft); color: var(--info); border-radius: 10px; padding: 10px 12px; font-size: .9rem; }
+.note.warn { background: var(--warn-soft); color: var(--warn); }
+.note.bad { background: var(--bad-soft); color: var(--bad); }
+.swap-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: end; }
+.swap-row .icon-btn { border: 1px solid var(--line); background: var(--surface); color: var(--accent); font-size: 1.2rem; }
+@media (max-width: 480px) {
+  .swap-row { grid-template-columns: 1fr; }
+  .swap-row .icon-btn { justify-self: center; transform: rotate(90deg); }
+}
+
+/* ---------- Tables ---------- */
+.table-wrap { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+table.tbl { width: 100%; border-collapse: collapse; }
+.tbl th { text-align: left; font-size: .74rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 700; padding: 10px 10px; background: var(--surface-2); border-bottom: 1px solid var(--line); white-space: nowrap; }
+.tbl td { padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; font-size: .92rem; }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl .r { text-align: right; }
+.tbl tbody tr[data-act] { cursor: pointer; }
+.tbl tbody tr[data-act]:hover td { background: var(--surface-2); }
+.tbl tr.opening td { background: var(--surface-2); font-weight: 600; }
+.tbl tr.total td { font-weight: 700; background: var(--surface-2); }
+.tbl .sub { color: var(--muted); font-size: .82rem; }
+.tbl tr.child td:first-child { padding-left: 30px; }
+.tbl tr.parent td { font-weight: 700; }
+.reg .c-amt, .reg .c-meta { display: none; }
+.reg td.c-payee { min-width: 160px; }
+.list-foot { padding: 10px 12px; text-align: center; }
+
+@media (max-width: 760px) {
+  .reg thead { display: none; }
+  .reg tbody tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "payee amt" "meta meta" "bal status"; column-gap: 10px; padding: 11px 12px; border-bottom: 1px solid var(--line); }
+  .reg tbody tr:last-child { border-bottom: 0; }
+  .reg td { padding: 0; border: 0; font-size: .92rem; }
+  .reg td.c-date, .reg td.c-acct, .reg td.c-cat, .reg td.c-chk, .reg td.c-in, .reg td.c-out, .reg td.c-clr { display: none; }
+  .reg td.c-payee { grid-area: payee; min-width: 0; font-weight: 600; overflow-wrap: anywhere; }
+  .reg td.c-amt { display: block; grid-area: amt; text-align: right; font-weight: 700; }
+  .reg td.c-meta { display: block; grid-area: meta; color: var(--muted); font-size: .82rem; margin-top: 2px; overflow-wrap: anywhere; }
+  .reg td.c-bal { grid-area: bal; text-align: left !important; font-size: .82rem; color: var(--muted); margin-top: 6px; align-self: center; }
+  .reg td.c-bal .clr-inline { display: inline; }
+  .reg td.c-status { grid-area: status; text-align: right; margin-top: 4px; }
+  .reg tr.opening { grid-template-areas: "payee amt"; }
+  .reg tr.opening td.c-bal, .reg tr.opening td.c-status, .reg tr.opening td.c-meta { display: none; }
+  .stats.three { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .stats.three .stat { padding: 10px; }
+  .stats.three .value { font-size: 1rem; }
+  .stats.three .label { font-size: .7rem; overflow-wrap: anywhere; }
+}
+.reg .clr-inline { display: none; }
+
+/* Simple list rows (bills, recurring, transfers, categories) */
+.rows { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+.row-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 13px 14px; border-top: 1px solid var(--line); align-items: start; }
+.row-item:first-child { border-top: 0; }
+.row-item .title { font-weight: 700; overflow-wrap: anywhere; }
+.row-item .meta { color: var(--muted); font-size: .86rem; overflow-wrap: anywhere; }
+.row-item .amount { font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.row-item .row-actions { grid-column: 1 / -1; display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.row-item.past-due { background: color-mix(in srgb, var(--bad-soft) 55%, transparent); }
+.row-item.due-today { background: color-mix(in srgb, var(--warn-soft) 60%, transparent); }
+.row-item.child { padding-left: 34px; }
+.row-item .pills { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 4px; }
+
+/* ---------- Modal ---------- */
+.overlay { position: fixed; inset: 0; background: rgba(10, 15, 12, .45); z-index: 100; display: flex; align-items: flex-end; justify-content: center; }
+@media (min-width: 640px) { .overlay { align-items: center; padding: 24px; } }
+.modal {
+  background: var(--surface); color: var(--ink); width: 100%; max-width: 560px; max-height: 92vh; display: flex; flex-direction: column;
+  border-radius: 16px 16px 0 0; box-shadow: 0 10px 40px rgba(0,0,0,.25);
+}
+.modal.wide { max-width: 760px; }
+@media (min-width: 640px) { .modal { border-radius: 16px; } }
+.modal > header { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 10px 10px 18px; border-bottom: 1px solid var(--line); }
+.modal-body { padding: 16px 18px calc(18px + env(safe-area-inset-bottom)); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.modal .actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 16px; }
+.modal .actions .spacer { flex: 1; }
+.modal ul.errors { margin: 8px 0; padding-left: 20px; color: var(--bad); max-height: 45vh; overflow: auto; }
+.modal ul.errors li { margin: 3px 0; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; margin: 8px 0; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ---------- Toasts ---------- */
+#toasts { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 200; display: flex; flex-direction: column; gap: 8px; width: min(92vw, 440px); pointer-events: none; }
+.toast { background: var(--ink); color: var(--bg); border-radius: 10px; padding: 12px 16px; font-weight: 600; box-shadow: 0 6px 20px rgba(0,0,0,.25); animation: toastIn .18s ease-out; }
+.toast.bad { background: var(--bad); color: #fff; }
+@keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Opening animation ---------- */
+body.intro .topbar .brand, body.intro .tabs, body.intro #main { opacity: 0; }
+.intro-veil {
+  position: fixed; inset: 0; z-index: 300; cursor: pointer;
+  background: radial-gradient(circle at 50% 45%, var(--accent-soft) 0%, var(--bg) 62%);
+}
+.intro-fly {
+  position: fixed; z-index: 301; margin: 0; pointer-events: none; transform-origin: 50% 50%;
+  will-change: transform, opacity; perspective: 400px;
+}
+.intro-fly .logo { position: relative; overflow: hidden; box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 40%, transparent); backface-visibility: visible; }
+.intro-fly .logo::after {
+  content: ""; position: absolute; inset: -40%; transform: translateX(-120%) rotate(25deg);
+  background: linear-gradient(90deg, transparent 35%, rgba(255,255,255,.55) 50%, transparent 65%);
+  animation: introShine 1.1s .35s ease-in-out both;
+}
+.intro-fly .brand-name { white-space: nowrap; display: inline-flex; }
+.intro-fly .brand-name span { display: inline-block; white-space: pre; }
+@keyframes introShine { to { transform: translateX(120%) rotate(25deg); } }
+
+/* ---------- Settings ---------- */
+.settings-grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+@media (min-width: 900px) { .settings-grid { grid-template-columns: 1fr 1fr; } .settings-grid .full { grid-column: 1 / -1; } }
+.settings-grid .card h2 { margin-bottom: 6px; }
+.settings-grid .btn-row { margin-top: 12px; }
+.counts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+.counts div { background: var(--surface-2); border-radius: 8px; padding: 8px 10px; }
+.counts b { display: block; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.counts span { font-size: .78rem; color: var(--muted); }
+.problems { margin: 10px 0 0; padding-left: 20px; }
+.problems li { margin: 4px 0; }
+details > summary { cursor: pointer; font-weight: 600; min-height: var(--tap); display: flex; align-items: center; }
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><span class="logo" aria-hidden="true">$</span><span class="brand-name">Dinero</span></div>
+    <nav class="tabs" id="tabs" aria-label="Sections">
+      <button data-tab="dashboard">Dashboard</button>
+      <button data-tab="register">Register</button>
+      <button data-tab="transfers">Transfers</button>
+      <button data-tab="categories">Categories</button>
+      <button data-tab="recurring">Recurring</button>
+      <button data-tab="bills">Bills</button>
+      <button data-tab="reports">Reports</button>
+      <button data-tab="settings">Sync / Settings</button>
+    </nav>
+  </header>
+  <div id="storageBanner" class="banner" hidden></div>
+  <main id="main" tabindex="-1"><p class="loading">Loading…</p></main>
+</div>
+<div id="toasts" aria-live="polite"></div>
+<input type="file" id="filePicker" hidden>
+<noscript><p style="padding:16px">Dinero needs JavaScript. If you are previewing this file in the iPhone Files app, it cannot run there — see the README.</p></noscript>
+<script>
+// ---- util.js ----
+'use strict';
+/* ===== General helpers: text, dates, money, CSV ===== */
+
+const APP_VERSION = '1.0.0';
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function pad(n, w = 2) { return String(n).padStart(w, '0'); }
+function deepClone(o) { return JSON.parse(JSON.stringify(o)); }
+function norm(s) { return String(s ?? '').trim().toLowerCase(); }
+
+/* ---- Dates (always YYYY-MM-DD strings, local calendar days) ---- */
+function localDateStr(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function today() { return localDateStr(new Date()); }
+function daysInMonth(y, m) { return new Date(Date.UTC(y, m, 0)).getUTCDate(); }
+function isDate(s) {
+  if (typeof s !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const [y, m, d] = s.split('-').map(Number);
+  return m >= 1 && m <= 12 && d >= 1 && d <= daysInMonth(y, m);
+}
+function addDays(s, n) {
+  const [y, m, d] = s.split('-').map(Number);
+  const t = new Date(Date.UTC(y, m - 1, d + n));
+  return t.getUTCFullYear() + '-' + pad(t.getUTCMonth() + 1) + '-' + pad(t.getUTCDate());
+}
+// Adds months, clamping to the last day of a shorter month (Jan 31 -> Feb 28/29).
+function addMonths(s, n) {
+  let [y, m, d] = s.split('-').map(Number);
+  let mi = (m - 1) + n;
+  y += Math.floor(mi / 12);
+  mi = ((mi % 12) + 12) % 12;
+  return y + '-' + pad(mi + 1) + '-' + pad(Math.min(d, daysInMonth(y, mi + 1)));
+}
+const FREQUENCIES = ['Weekly', 'Every 2 Weeks', 'Monthly', 'Every 2 Months', 'Quarterly', 'Yearly'];
+function advanceDate(s, freq) {
+  switch (freq) {
+    case 'Weekly': return addDays(s, 7);
+    case 'Every 2 Weeks': return addDays(s, 14);
+    case 'Monthly': return addMonths(s, 1);
+    case 'Every 2 Months': return addMonths(s, 2);
+    case 'Quarterly': return addMonths(s, 3);
+    case 'Yearly': return addMonths(s, 12);
+  }
+  throw new Error('Unknown frequency: ' + freq);
+}
+function monthStart(s) { return s.slice(0, 7) + '-01'; }
+function monthEnd(s) { const [y, m] = s.split('-').map(Number); return s.slice(0, 7) + '-' + pad(daysInMonth(y, m)); }
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+function fmtDate(s) {
+  if (!isDate(s)) return s || '';
+  const [y, m, d] = s.split('-').map(Number);
+  return `${MONTHS[m - 1]} ${d}, ${y}`;
+}
+function fmtMonth(ym) { const [y, m] = ym.split('-').map(Number); return `${MONTHS_LONG[m - 1]} ${y}`; }
+function fmtDateTime(iso) {
+  if (!iso) return 'Never';
+  const d = new Date(iso);
+  if (isNaN(d)) return 'Never';
+  let h = d.getHours(); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
+  return `${fmtDate(localDateStr(d))}, ${h}:${pad(d.getMinutes())} ${ap}`;
+}
+function daysBetween(a, b) { // b - a in days
+  const [y1, m1, d1] = a.split('-').map(Number), [y2, m2, d2] = b.split('-').map(Number);
+  return Math.round((Date.UTC(y2, m2 - 1, d2) - Date.UTC(y1, m1 - 1, d1)) / 86400000);
+}
+// Excel serial date (1900 system) -> YYYY-MM-DD
+function excelSerialToDate(n) {
+  const ms = Math.round((n - 25569) * 86400000);
+  const t = new Date(ms);
+  return t.getUTCFullYear() + '-' + pad(t.getUTCMonth() + 1) + '-' + pad(t.getUTCDate());
+}
+// Accepts YYYY-MM-DD, YYYY/MM/DD, M/D/YYYY, Excel serial numbers, Date objects. Returns '' for blank, null if invalid.
+function parseAnyDate(v) {
+  if (v == null || v === '') return '';
+  if (typeof v === 'number') return v > 0 && v < 2958466 ? excelSerialToDate(v) : null;
+  if (v instanceof Date) return isNaN(v) ? null : localDateStr(v);
+  const s = String(v).trim();
+  if (!s) return '';
+  let m;
+  if ((m = s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?:[ T].*)?$/))) {
+    const r = m[1] + '-' + pad(+m[2]) + '-' + pad(+m[3]);
+    return isDate(r) ? r : null;
+  }
+  if ((m = s.match(/^(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{2}|\d{4})$/))) {
+    let y = +m[3]; if (y < 100) y += 2000;
+    const r = y + '-' + pad(+m[1]) + '-' + pad(+m[2]);
+    return isDate(r) ? r : null;
+  }
+  if (/^\d+(\.\d+)?$/.test(s)) return parseAnyDate(Number(s));
+  return null;
+}
+
+/* ---- Money: all sums are done in integer cents ---- */
+// Parses "1,234.50", "$12", "(5.00)", "-3" -> number, or NaN.
+function parseMoney(v) {
+  if (typeof v === 'number') return isFinite(v) ? v : NaN;
+  let s = String(v ?? '').trim();
+  if (!s) return NaN;
+  let neg = false;
+  if (/^\(.*\)$/.test(s)) { neg = true; s = s.slice(1, -1); }
+  s = s.replace(/[$,\s]/g, '');
+  if (s.startsWith('-')) { neg = !neg; s = s.slice(1); }
+  if (s.startsWith('+')) s = s.slice(1);
+  if (!/^(\d+\.?\d*|\.\d+)$/.test(s)) return NaN;
+  const n = parseFloat(s);
+  return neg ? -n : n;
+}
+function toCents(v) {
+  const n = typeof v === 'number' ? v : parseMoney(v);
+  if (!isFinite(n)) return NaN;
+  const sign = n < 0 ? -1 : 1;
+  return sign * Math.round(Math.abs(n) * 100 + 1e-7);
+}
+function centsToNum(c) { return Math.round(c) / 100; } // stored money: plain number, 2 decimals
+const MONEY_FMT = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+function fmt(c) { const s = MONEY_FMT.format(Math.round(c) / 100); return s.replace('−', '-'); }
+function fmtSigned(c) { return c > 0 ? '+' + fmt(c) : fmt(c); }
+function fixed2(c) { return (Math.round(c) / 100).toFixed(2); }
+
+/* ---- CSV ---- */
+function csvCell(v) {
+  const s = v == null ? '' : String(v);
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function toCSV(rows) { return '﻿' + rows.map((r) => r.map(csvCell).join(',')).join('\r\n') + '\r\n'; }
+
+function yesNo(b) { return b ? 'Yes' : 'No'; }
+function parseYesNo(v, dflt) {
+  if (v === true || v === 1) return true;
+  if (v === false || v === 0) return false;
+  const s = norm(v);
+  if (!s) return dflt;
+  if (['yes', 'y', 'true', '1', 'x'].includes(s)) return true;
+  if (['no', 'n', 'false', '0'].includes(s)) return false;
+  return undefined;
+}
+function plural(n, one, many) { return n + ' ' + (n === 1 ? one : (many || one + 's')); }
+
+// ---- zip.js ----
+'use strict';
+/* ===== Minimal ZIP writer (stored) and reader (stored + deflate via the browser's DecompressionStream) ===== */
+
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+function crc32(u8) {
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < u8.length; i++) c = CRC_TABLE[(c ^ u8[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+const UTF8_ENC = new TextEncoder();
+const UTF8_DEC = new TextDecoder();
+
+function concatU8(arr) {
+  const len = arr.reduce((a, b) => a + b.length, 0);
+  const out = new Uint8Array(len);
+  let o = 0;
+  for (const a of arr) { out.set(a, o); o += a.length; }
+  return out;
+}
+
+// files: [{name, data: string|Uint8Array}] -> Uint8Array (zip)
+function zipFiles(files) {
+  const parts = [], central = [];
+  let offset = 0;
+  const now = new Date();
+  const dosTime = (now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1);
+  const dosDate = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
+  for (const f of files) {
+    const name = UTF8_ENC.encode(f.name);
+    const data = typeof f.data === 'string' ? UTF8_ENC.encode(f.data) : f.data;
+    const crc = crc32(data);
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true);
+    lh.setUint16(8, 0, true); lh.setUint16(10, dosTime, true); lh.setUint16(12, dosDate, true);
+    lh.setUint32(14, crc, true); lh.setUint32(18, data.length, true); lh.setUint32(22, data.length, true);
+    lh.setUint16(26, name.length, true); lh.setUint16(28, 0, true);
+    parts.push(new Uint8Array(lh.buffer), name, data);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true);
+    ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true); ch.setUint16(12, dosTime, true);
+    ch.setUint16(14, dosDate, true); ch.setUint32(16, crc, true); ch.setUint32(20, data.length, true);
+    ch.setUint32(24, data.length, true); ch.setUint16(28, name.length, true);
+    ch.setUint32(42, offset, true);
+    central.push(new Uint8Array(ch.buffer), name);
+    offset += 30 + name.length + data.length;
+  }
+  const cdSize = central.reduce((a, b) => a + b.length, 0);
+  const eo = new DataView(new ArrayBuffer(22));
+  eo.setUint32(0, 0x06054b50, true); eo.setUint16(8, files.length, true); eo.setUint16(10, files.length, true);
+  eo.setUint32(12, cdSize, true); eo.setUint32(16, offset, true);
+  return concatU8([...parts, ...central, new Uint8Array(eo.buffer)]);
+}
+
+async function inflateRaw(u8) {
+  if (typeof DecompressionStream === 'undefined') {
+    throw new Error('This browser is too old to open compressed Excel files. Please update Safari or Chrome.');
+  }
+  const stream = new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+async function unzip(buf) {
+  const u8 = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+  const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
+  let e = -1;
+  for (let i = u8.length - 22; i >= Math.max(0, u8.length - 65557); i--) {
+    if (dv.getUint32(i, true) === 0x06054b50) { e = i; break; }
+  }
+  if (e < 0) throw new Error('This file is not an Excel .xlsx workbook (it is not a zip file).');
+  const count = dv.getUint16(e + 10, true);
+  let p = dv.getUint32(e + 16, true);
+  const entries = {};
+  for (let k = 0; k < count; k++) {
+    if (dv.getUint32(p, true) !== 0x02014b50) throw new Error('The workbook file is damaged.');
+    const method = dv.getUint16(p + 10, true);
+    const csize = dv.getUint32(p + 20, true);
+    const nlen = dv.getUint16(p + 28, true), xlen = dv.getUint16(p + 30, true), clen = dv.getUint16(p + 32, true);
+    const lo = dv.getUint32(p + 42, true);
+    const name = UTF8_DEC.decode(u8.subarray(p + 46, p + 46 + nlen));
+    p += 46 + nlen + xlen + clen;
+    const start = lo + 30 + dv.getUint16(lo + 26, true) + dv.getUint16(lo + 28, true);
+    entries[name] = { method, raw: u8.subarray(start, start + csize) };
+  }
+  return {
+    names: Object.keys(entries),
+    async text(name) {
+      const key = Object.keys(entries).find((n) => n.toLowerCase() === name.toLowerCase());
+      if (!key) return null;
+      const f = entries[key];
+      let data;
+      if (f.method === 0) data = f.raw;
+      else if (f.method === 8) data = await inflateRaw(f.raw);
+      else throw new Error('The workbook uses a compression type this app cannot read.');
+      return UTF8_DEC.decode(data);
+    },
+  };
+}
+
+// ---- xlsx.js ----
+'use strict';
+/* ===== Minimal .xlsx writer and reader (no external library) ===== */
+
+function xlColName(i) {
+  let s = ''; i++;
+  while (i > 0) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); }
+  return s;
+}
+function xlColIndex(letters) {
+  let n = 0;
+  for (const ch of letters.toUpperCase()) n = n * 26 + (ch.charCodeAt(0) - 64);
+  return n - 1;
+}
+function xmlEsc(s) {
+  return String(s)
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F￾￿]/g, '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function xmlUnesc(s) {
+  return s
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(+d))
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&')
+    .replace(/_x([0-9A-Fa-f]{4})_/g, (_, h) => String.fromCharCode(parseInt(h, 16)));
+}
+function xmlAttrs(s) {
+  // Namespace prefixes are dropped, except a prefixed "id" (the relationship id) is kept as "r:id".
+  const o = {};
+  const put = (k, v) => {
+    const i = k.indexOf(':');
+    const key = i < 0 ? k : (k.slice(i + 1) === 'id' ? 'r:id' : k.slice(i + 1));
+    o[key] = xmlUnesc(v);
+  };
+  s.replace(/([\w:.-]+)\s*=\s*"([^"]*)"/g, (_, k, v) => put(k, v));
+  s.replace(/([\w:.-]+)\s*=\s*'([^']*)'/g, (_, k, v) => put(k, v));
+  return o;
+}
+
+/*
+ * sheets: [{ name, rows: [[cell...]], widths: [chars...], colStyles: ['text'|'money'|null...] }]
+ * cell: string | number | null | { f: 'FORMULA', v: number }
+ * Row 1 is written bold. Money columns get #,##0.00; text columns get the "@" (text) format so typed dates stay text.
+ */
+function buildXlsx(sheets) {
+  const H = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+  const NS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main';
+  const RNS = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+  const PNS = 'http://schemas.openxmlformats.org/package/2006/relationships';
+  const files = [];
+  files.push({ name: '[Content_Types].xml', data: H +
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+    '<Default Extension="xml" ContentType="application/xml"/>' +
+    '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+    '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' +
+    sheets.map((s, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('') +
+    '</Types>' });
+  files.push({ name: '_rels/.rels', data: H + `<Relationships xmlns="${PNS}"><Relationship Id="rId1" Type="${RNS}/officeDocument" Target="xl/workbook.xml"/></Relationships>` });
+  files.push({ name: 'xl/workbook.xml', data: H + `<workbook xmlns="${NS}" xmlns:r="${RNS}"><sheets>` +
+    sheets.map((s, i) => `<sheet name="${xmlEsc(s.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('') +
+    '</sheets><calcPr calcId="191029" fullCalcOnLoad="1"/></workbook>' });
+  files.push({ name: 'xl/_rels/workbook.xml.rels', data: H + `<Relationships xmlns="${PNS}">` +
+    sheets.map((s, i) => `<Relationship Id="rId${i + 1}" Type="${RNS}/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('') +
+    `<Relationship Id="rId${sheets.length + 1}" Type="${RNS}/styles" Target="styles.xml"/></Relationships>` });
+  // Styles: 0 normal, 1 bold header, 2 money, 3 text
+  files.push({ name: 'xl/styles.xml', data: H + `<styleSheet xmlns="${NS}">` +
+    '<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts>' +
+    '<fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>' +
+    '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>' +
+    '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
+    '<cellXfs count="4"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' +
+    '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>' +
+    '<xf numFmtId="4" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' +
+    '<xf numFmtId="49" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs>' +
+    '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>' });
+
+  sheets.forEach((sh, si) => {
+    const styleFor = (ci) => (sh.colStyles && sh.colStyles[ci] === 'money' ? 2 : sh.colStyles && sh.colStyles[ci] === 'text' ? 3 : 0);
+    const cols = (sh.widths || []).map((w, ci) => {
+      const st = styleFor(ci);
+      return `<col min="${ci + 1}" max="${ci + 1}" width="${w}" customWidth="1"${st ? ` style="${st}"` : ''}/>`;
+    }).join('');
+    const rowsXml = sh.rows.map((row, ri) => {
+      const r = ri + 1;
+      const cells = row.map((v, ci) => {
+        if (v == null || v === '') return '';
+        const ref = xlColName(ci) + r;
+        const st = ri === 0 && sh.boldFirstRow !== false ? 1 : styleFor(ci);
+        const sAttr = st ? ` s="${st}"` : '';
+        if (typeof v === 'object' && v.f) {
+          return `<c r="${ref}"${sAttr}><f>${xmlEsc(v.f)}</f>${v.v != null ? `<v>${v.v}</v>` : ''}</c>`;
+        }
+        if (typeof v === 'number' && isFinite(v)) return `<c r="${ref}"${sAttr}><v>${v}</v></c>`;
+        return `<c r="${ref}"${sAttr} t="inlineStr"><is><t xml:space="preserve">${xmlEsc(v)}</t></is></c>`;
+      }).join('');
+      return `<row r="${r}">${cells}</row>`;
+    }).join('');
+    const frozen = sh.freeze !== false
+      ? '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'
+      : '<sheetViews><sheetView workbookViewId="0"/></sheetViews>';
+    files.push({ name: `xl/worksheets/sheet${si + 1}.xml`, data: H +
+      `<worksheet xmlns="${NS}" xmlns:r="${RNS}">${frozen}<sheetFormatPr defaultRowHeight="15"/>` +
+      (cols ? `<cols>${cols}</cols>` : '') + `<sheetData>${rowsXml}</sheetData></worksheet>` });
+  });
+  return zipFiles(files);
+}
+
+/* Reads an .xlsx into { SheetName: [[cellValue,...], ...] }. Values are strings, numbers or booleans. */
+async function readXlsx(buf) {
+  const z = await unzip(buf);
+  const wb = await z.text('xl/workbook.xml');
+  if (!wb) throw new Error('This file does not look like an Excel workbook (no workbook inside).');
+  const rels = (await z.text('xl/_rels/workbook.xml.rels')) || '';
+  const relMap = {};
+  rels.replace(/<(?:\w+:)?Relationship\b([^>]*)\/?>/g, (_, a) => { const at = xmlAttrs(a); relMap[at.Id] = at.Target; });
+  const ssXml = await z.text('xl/sharedStrings.xml');
+  const shared = [];
+  if (ssXml) {
+    ssXml.replace(/<(?:\w+:)?si\b[^>]*>([\s\S]*?)<\/(?:\w+:)?si>/g, (_, inner) => {
+      shared.push(xlTextOf(inner));
+    });
+  }
+  const out = {};
+  const sheetTags = [];
+  wb.replace(/<(?:\w+:)?sheet\b([^>]*)\/?>/g, (_, a) => { sheetTags.push(xmlAttrs(a)); });
+  for (const at of sheetTags) {
+    const rid = at['r:id'] || at.id;
+    let target = relMap[rid];
+    if (!target) continue;
+    target = target.startsWith('/') ? target.slice(1) : 'xl/' + target.replace(/^\.\//, '');
+    const xml = await z.text(target);
+    if (xml == null) continue;
+    out[at.name] = xlParseSheet(xml, shared);
+  }
+  return out;
+}
+function xlTextOf(inner) {
+  inner = inner.replace(/<(?:\w+:)?rPh\b[\s\S]*?<\/(?:\w+:)?rPh>/g, '');
+  let s = '';
+  inner.replace(/<(?:\w+:)?t\b[^>]*>([\s\S]*?)<\/(?:\w+:)?t>/g, (_, t) => { s += xmlUnesc(t); });
+  return s;
+}
+function xlParseSheet(xml, shared) {
+  const rows = [];
+  let nextRow = 0;
+  xml.replace(/<(?:\w+:)?row\b([^>]*?)(?:\/>|>([\s\S]*?)<\/(?:\w+:)?row>)/g, (_, ra, rinner) => {
+    const rat = xmlAttrs(ra);
+    const rIdx = rat.r ? +rat.r - 1 : nextRow;
+    nextRow = rIdx + 1;
+    const row = [];
+    let nextCol = 0;
+    (rinner || '').replace(/<(?:\w+:)?c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/(?:\w+:)?c>)/g, (__, ca, cinner) => {
+      const at = xmlAttrs(ca);
+      let ci = nextCol;
+      if (at.r) { const m = at.r.match(/^([A-Za-z]+)/); if (m) ci = xlColIndex(m[1]); }
+      nextCol = ci + 1;
+      cinner = cinner || '';
+      const vm = cinner.match(/<(?:\w+:)?v\b[^>]*>([\s\S]*?)<\/(?:\w+:)?v>/);
+      const v = vm ? xmlUnesc(vm[1]) : null;
+      let val = null;
+      const t = at.t || 'n';
+      if (t === 's') val = v != null ? shared[+v] ?? '' : '';
+      else if (t === 'inlineStr') val = xlTextOf(cinner);
+      else if (t === 'b') val = v === '1';
+      else if (t === 'str' || t === 'e') val = v ?? '';
+      else if (t === 'd') val = v ?? '';
+      else val = v == null || v === '' ? null : Number(v);
+      row[ci] = val;
+    });
+    rows[rIdx] = row;
+  });
+  for (let i = 0; i < rows.length; i++) if (!rows[i]) rows[i] = [];
+  return rows;
+}
+
+// ---- pdf.js ----
+'use strict';
+/* ===== Minimal PDF writer (built-in Helvetica fonts, text tables, page numbers) ===== */
+
+// Glyph widths (1/1000 em) for characters 32..126
+const HELV_W = [278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584];
+const HELVB_W = [278,333,474,556,556,889,722,238,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,333,333,584,584,584,611,975,722,722,722,722,667,611,778,722,278,556,722,611,833,722,778,667,778,722,667,611,722,667,944,667,667,611,333,278,333,584,556,333,556,611,556,611,556,333,611,611,278,278,556,278,889,611,611,611,611,389,556,333,611,556,778,556,556,500,389,280,389,584];
+
+function pdfSafeText(s) {
+  return String(s ?? '')
+    .replace(/[‘’]/g, "'").replace(/[“”]/g, '"')
+    .replace(/[‒-―−]/g, '-').replace(/…/g, '...').replace(/[›→]/g, '>')
+    .replace(/[   ]/g, ' ').replace(/•/g, '·')
+    .replace(/[\r\n\t]+/g, ' ')
+    .replace(/[^\x20-\x7E¡-ÿ]/g, '?');
+}
+function pdfTextWidth(s, size, bold) {
+  const t = bold ? HELVB_W : HELV_W;
+  let w = 0;
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    w += c >= 32 && c <= 126 ? t[c - 32] : 556;
+  }
+  return (w * size) / 1000;
+}
+function pdfEscape(s) {
+  let out = '';
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i), ch = s[i];
+    if (ch === '\\' || ch === '(' || ch === ')') out += '\\' + ch;
+    else if (c > 126) out += '\\' + c.toString(8).padStart(3, '0');
+    else out += ch;
+  }
+  return out;
+}
+function pdfFit(s, maxW, size, bold) {
+  s = pdfSafeText(s);
+  if (pdfTextWidth(s, size, bold) <= maxW) return s;
+  while (s.length > 1 && pdfTextWidth(s + '...', size, bold) > maxW) s = s.slice(0, -1);
+  return s + '...';
+}
+const n2 = (v) => (Math.round(v * 100) / 100).toString();
+
+class PdfDoc {
+  constructor(landscape) {
+    this.W = landscape ? 792 : 612;
+    this.H = landscape ? 612 : 792;
+    this.pages = [];
+    this.cur = null;
+  }
+  addPage() { this.cur = []; this.pages.push(this.cur); }
+  // y is measured from the TOP of the page (baseline position)
+  text(x, y, s, { size = 10, bold = false, color = [0, 0, 0], align = 'left' } = {}) {
+    s = pdfSafeText(s);
+    let tx = x;
+    if (align === 'right') tx = x - pdfTextWidth(s, size, bold);
+    else if (align === 'center') tx = x - pdfTextWidth(s, size, bold) / 2;
+    this.cur.push(`BT /${bold ? 'F2' : 'F1'} ${size} Tf ${color.map(n2).join(' ')} rg ${n2(tx)} ${n2(this.H - y)} Td (${pdfEscape(s)}) Tj ET`);
+  }
+  rect(x, y, w, h, color) { // y = top edge
+    this.cur.push(`${color.map(n2).join(' ')} rg ${n2(x)} ${n2(this.H - y - h)} ${n2(w)} ${n2(h)} re f`);
+  }
+  line(x1, y1, x2, y2, width = 0.5, color = [0.75, 0.75, 0.75]) {
+    this.cur.push(`${color.map(n2).join(' ')} RG ${n2(width)} w ${n2(x1)} ${n2(this.H - y1)} m ${n2(x2)} ${n2(this.H - y2)} l S`);
+  }
+  output(title) {
+    const objs = [];
+    const fontBase = 3;
+    const pageIds = this.pages.map((_, i) => 5 + i * 2);
+    objs[1] = '<< /Type /Catalog /Pages 2 0 R >>';
+    objs[2] = `<< /Type /Pages /Kids [${pageIds.map((id) => id + ' 0 R').join(' ')}] /Count ${this.pages.length} >>`;
+    objs[fontBase] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';
+    objs[fontBase + 1] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
+    this.pages.forEach((ops, i) => {
+      const pid = pageIds[i], cid = pid + 1;
+      const stream = ops.join('\n');
+      objs[pid] = `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${this.W} ${this.H}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${cid} 0 R >>`;
+      objs[cid] = `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`;
+    });
+    const infoId = objs.length;
+    objs[infoId] = `<< /Title (${pdfEscape(pdfSafeText(title || 'Dinero'))}) /Producer (Dinero) >>`;
+    let out = '%PDF-1.4\n%âãÏÓ\n';
+    const offsets = [];
+    for (let i = 1; i < objs.length; i++) {
+      offsets[i] = out.length;
+      out += `${i} 0 obj\n${objs[i]}\nendobj\n`;
+    }
+    const xref = out.length;
+    out += `xref\n0 ${objs.length}\n0000000000 65535 f \n`;
+    for (let i = 1; i < objs.length; i++) out += String(offsets[i]).padStart(10, '0') + ' 00000 n \n';
+    out += `trailer\n<< /Size ${objs.length} /Root 1 0 R /Info ${infoId} 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+    const bytes = new Uint8Array(out.length);
+    for (let i = 0; i < out.length; i++) bytes[i] = out.charCodeAt(i) & 0xFF;
+    return bytes;
+  }
+}
+
+/*
+ * Builds a printable table report.
+ * opts: { title, scopeLines: [string], columns: [{label, w (relative), align}], rows: [{cells, bold, fill, indent, color}],
+ *         totals: [[label, value]], landscape, emptyText }
+ */
+function makeTablePdf(opts) {
+  const doc = new PdfDoc(!!opts.landscape);
+  const M = 36, FS = 8.5, RH = 15;
+  const width = doc.W - M * 2;
+  const totalW = opts.columns.reduce((a, c) => a + c.w, 0);
+  let x = M;
+  const cols = opts.columns.map((c) => { const w = (c.w / totalW) * width; const o = { ...c, x, w }; x += w; return o; });
+  const generated = 'Generated ' + fmtDateTime(new Date().toISOString());
+  let y;
+  const drawHeader = () => {
+    doc.rect(M, y - 10.5, width, RH, [0.90, 0.93, 0.91]);
+    for (const c of cols) {
+      const lbl = pdfFit(c.label, c.w - 6, FS, true);
+      if (c.align === 'right') doc.text(c.x + c.w - 3, y, lbl, { size: FS, bold: true, align: 'right' });
+      else doc.text(c.x + 3, y, lbl, { size: FS, bold: true });
+    }
+    y += RH;
+  };
+  const newPage = (first) => {
+    doc.addPage();
+    y = M + 14;
+    if (first) {
+      doc.text(M, y, opts.title, { size: 17, bold: true, color: [0.08, 0.32, 0.24] });
+      y += 16;
+      doc.text(M, y, generated, { size: 9, color: [0.4, 0.4, 0.4] });
+      y += 13;
+      for (const line of opts.scopeLines || []) { doc.text(M, y, line, { size: 9 }); y += 12; }
+      y += 8;
+    } else {
+      doc.text(M, y, opts.title + ' (continued)', { size: 11, bold: true, color: [0.08, 0.32, 0.24] });
+      y += 18;
+    }
+    drawHeader();
+  };
+  newPage(true);
+  const bottom = doc.H - M - 18;
+  if (!opts.rows.length) {
+    doc.text(M + 3, y, opts.emptyText || 'No entries match.', { size: 9, color: [0.4, 0.4, 0.4] });
+    y += RH;
+  }
+  for (const r of opts.rows) {
+    if (y > bottom) newPage(false);
+    if (r.fill) doc.rect(M, y - 10.5, width, RH, r.fill);
+    r.cells.forEach((v, i) => {
+      const c = cols[i];
+      const indent = i === 0 && r.indent ? r.indent : 0;
+      const s = pdfFit(v, c.w - 6 - indent, FS, !!r.bold);
+      const style = { size: FS, bold: !!r.bold, color: (r.colors && r.colors[i]) || r.color || [0, 0, 0] };
+      if (c.align === 'right') doc.text(c.x + c.w - 3, y, s, { ...style, align: 'right' });
+      else doc.text(c.x + 3 + indent, y, s, style);
+    });
+    doc.line(M, y + 4.5, M + width, y + 4.5, 0.4, [0.85, 0.85, 0.85]);
+    y += RH;
+  }
+  if (opts.totals && opts.totals.length) {
+    y += 8;
+    if (y + opts.totals.length * 14 > bottom) newPage(false);
+    doc.line(M, y - 8, M + width, y - 8, 1, [0.3, 0.3, 0.3]);
+    for (const [label, value] of opts.totals) {
+      doc.text(M + 3, y + 4, label, { size: 10, bold: true });
+      doc.text(M + 200, y + 4, value, { size: 10, bold: true, align: 'right' });
+      y += 14;
+    }
+  }
+  const n = doc.pages.length;
+  doc.pages.forEach((ops, i) => {
+    doc.cur = ops;
+    doc.line(M, doc.H - M + 2, doc.W - M, doc.H - M + 2, 0.5);
+    doc.text(M, doc.H - M + 14, 'Dinero - ' + opts.title, { size: 8, color: [0.4, 0.4, 0.4] });
+    doc.text(doc.W - M, doc.H - M + 14, `Page ${i + 1} of ${n}`, { size: 8, color: [0.4, 0.4, 0.4], align: 'right' });
+  });
+  return doc.output(opts.title);
+}
+
+// ---- storage.js ----
+'use strict';
+/* ===== On-device storage: IndexedDB (preferred) with a localStorage mirror/fallback ===== */
+
+const STORE_DB = 'dinero';
+const STORE_NAME = 'kv';
+const LS_PREFIX = 'dinero:';
+const Storage = {
+  idb: null,
+  lsOk: false,
+  engine: 'none',
+
+  async init() {
+    try { localStorage.setItem(LS_PREFIX + 'probe', '1'); localStorage.removeItem(LS_PREFIX + 'probe'); this.lsOk = true; } catch (e) { this.lsOk = false; }
+    this.idb = await new Promise((resolve) => {
+      let done = false;
+      const finish = (v) => { if (!done) { done = true; resolve(v); } };
+      try {
+        if (typeof indexedDB === 'undefined') return finish(null);
+        const req = indexedDB.open(STORE_DB, 1);
+        req.onupgradeneeded = () => { req.result.createObjectStore(STORE_NAME); };
+        req.onsuccess = () => finish(req.result);
+        req.onerror = () => finish(null);
+        req.onblocked = () => finish(null);
+        setTimeout(() => finish(null), 4000);
+      } catch (e) { finish(null); }
+    });
+    if (this.idb) {
+      try { await this._idbPut('probe', 1); } catch (e) { this.idb = null; }
+    }
+    this.engine = this.idb ? 'IndexedDB' : this.lsOk ? 'localStorage' : 'none';
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) { /* optional */ }
+    return this.engine;
+  },
+  _idbPut(key, val) {
+    return new Promise((res, rej) => {
+      const tx = this.idb.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).put(val, key);
+      tx.oncomplete = () => res();
+      tx.onerror = () => rej(tx.error);
+      tx.onabort = () => rej(tx.error);
+    });
+  },
+  _idbGet(key) {
+    return new Promise((res, rej) => {
+      const tx = this.idb.transaction(STORE_NAME, 'readonly');
+      const q = tx.objectStore(STORE_NAME).get(key);
+      q.onsuccess = () => res(q.result);
+      q.onerror = () => rej(q.error);
+    });
+  },
+  // Values are wrapped as {savedAt, value}; on load the newest copy (IndexedDB or localStorage) wins.
+  async get(key) {
+    let a, b;
+    if (this.idb) { try { a = await this._idbGet(key); } catch (e) { a = undefined; } }
+    if (this.lsOk) { try { const s = localStorage.getItem(LS_PREFIX + key); b = s ? JSON.parse(s) : undefined; } catch (e) { b = undefined; } }
+    const best = [a, b].filter((x) => x && x.savedAt).sort((x, y) => y.savedAt - x.savedAt)[0];
+    return best ? best.value : undefined;
+  },
+  async set(key, value) {
+    const rec = { savedAt: Date.now(), value };
+    let ok = false;
+    if (this.idb) { try { await this._idbPut(key, rec); ok = true; } catch (e) { ok = false; } }
+    if (this.lsOk) {
+      try { localStorage.setItem(LS_PREFIX + key, JSON.stringify(rec)); ok = true; } catch (e) { /* quota: IndexedDB copy is the main one */ }
+    }
+    return ok;
+  },
+  async clearAll() {
+    if (this.idb) { try { await new Promise((res, rej) => { const tx = this.idb.transaction(STORE_NAME, 'readwrite'); tx.objectStore(STORE_NAME).clear(); tx.oncomplete = res; tx.onerror = () => rej(tx.error); }); } catch (e) { /* ignore */ } }
+    if (this.lsOk) { try { Object.keys(localStorage).filter((k) => k.startsWith(LS_PREFIX)).forEach((k) => localStorage.removeItem(k)); } catch (e) { /* ignore */ } }
+  },
+};
+
+// ---- model.js ----
+'use strict';
+/* ===== Data model, calculation rules, import/export ===== */
+
+const ACCOUNT_TYPES = ['Checking', 'Savings', 'Credit Card', 'Cash', 'Other'];
+const CAT_KINDS = ['Income', 'Expense', 'Both'];
+const ID_SPEC = {
+  accounts: ['acct_', 3], categories: ['cat_', 3], transactions: ['txn_', 6],
+  transfers: ['xfr_', 5], recurring: ['rec_', 3], bills: ['bill_', 4],
+};
+// Exact Excel sheet names and column headings (identical to the earlier version of the app).
+const SHEET_COLUMNS = {
+  Accounts: ['id', 'name', 'type', 'opening_balance', 'opening_date', 'notes', 'is_active'],
+  Categories: ['id', 'name', 'parent_name', 'kind'],
+  Transactions: ['id', 'date', 'account_id', 'account_name', 'payee', 'description', 'category', 'check_number', 'amount', 'cleared', 'transfer_id', 'entry_order'],
+  Transfers: ['id', 'date', 'from_account_name', 'to_account_name', 'amount', 'description'],
+  Recurring: ['id', 'payee', 'direction', 'amount', 'account_name', 'category', 'frequency', 'start_date', 'next_due_date', 'end_date', 'auto_post', 'days_in_advance', 'status', 'memo', 'last_posted_for_date'],
+  Bills: ['id', 'payee', 'amount', 'due_date', 'pay_from_account_name', 'category', 'status', 'paid_date', 'linked_transaction_id', 'is_recurring', 'frequency', 'end_date', 'notes'],
+};
+const REQUIRED_COLUMNS = {
+  Accounts: ['name'], Categories: ['name'], Transactions: ['date', 'amount'],
+  Transfers: ['date', 'from_account_name', 'to_account_name', 'amount'],
+  Recurring: ['payee', 'amount', 'frequency', 'account_name'], Bills: ['payee', 'amount', 'due_date'],
+};
+const SHEET_TO_KEY = { Accounts: 'accounts', Categories: 'categories', Transactions: 'transactions', Transfers: 'transfers', Recurring: 'recurring', Bills: 'bills' };
+
+function emptyDb() {
+  return { schema: 1, accounts: [], categories: [], transactions: [], transfers: [], recurring: [], bills: [] };
+}
+const money = (v) => centsToNum(toCents(v) || 0);
+const s0 = (v) => (v == null ? '' : String(v));
+
+function normalizeDb(d) {
+  const db = emptyDb();
+  d = d || {};
+  db.accounts = (d.accounts || []).map((a) => ({
+    id: s0(a.id), name: s0(a.name), type: ACCOUNT_TYPES.includes(a.type) ? a.type : 'Other',
+    opening_balance: money(a.opening_balance), opening_date: s0(a.opening_date), notes: s0(a.notes),
+    is_active: a.is_active === false || a.is_active === 'No' ? false : true,
+  }));
+  db.categories = (d.categories || []).map((c) => ({
+    id: s0(c.id), name: s0(c.name), parent_name: s0(c.parent_name), kind: CAT_KINDS.includes(c.kind) ? c.kind : 'Both',
+  }));
+  db.transactions = (d.transactions || []).map((t) => ({
+    id: s0(t.id), date: s0(t.date), account_id: s0(t.account_id), payee: s0(t.payee), description: s0(t.description),
+    category: s0(t.category), check_number: s0(t.check_number), amount: money(t.amount),
+    cleared: t.cleared === true || t.cleared === 'Cleared', transfer_id: s0(t.transfer_id),
+    entry_order: Number(t.entry_order) || 0,
+    ...(t.bill_id ? { bill_id: s0(t.bill_id) } : {}),
+    ...(t.recurring_id ? { recurring_id: s0(t.recurring_id) } : {}),
+    ...(t.auto_posted_on ? { auto_posted_on: s0(t.auto_posted_on) } : {}),
+  }));
+  db.transfers = (d.transfers || []).map((x) => ({
+    id: s0(x.id), date: s0(x.date), from_account_id: s0(x.from_account_id), to_account_id: s0(x.to_account_id),
+    amount: Math.abs(money(x.amount)), description: s0(x.description),
+  }));
+  db.recurring = (d.recurring || []).map((r) => ({
+    id: s0(r.id), payee: s0(r.payee), direction: r.direction === 'In' ? 'In' : 'Out', amount: Math.abs(money(r.amount)),
+    account_id: s0(r.account_id), category: s0(r.category), frequency: FREQUENCIES.includes(r.frequency) ? r.frequency : 'Monthly',
+    start_date: s0(r.start_date), next_due_date: s0(r.next_due_date), end_date: s0(r.end_date),
+    auto_post: r.auto_post === true || r.auto_post === 'Yes', days_in_advance: Math.max(0, Math.min(90, parseInt(r.days_in_advance, 10) || 0)),
+    status: r.status === 'Paused' ? 'Paused' : 'Active', memo: s0(r.memo), last_posted_for_date: s0(r.last_posted_for_date),
+  }));
+  db.bills = (d.bills || []).map((b) => ({
+    id: s0(b.id), payee: s0(b.payee), amount: Math.abs(money(b.amount)), due_date: s0(b.due_date),
+    account_id: s0(b.account_id), category: s0(b.category), status: b.status === 'Paid' ? 'Paid' : 'Unpaid',
+    paid_date: s0(b.paid_date), linked_transaction_id: s0(b.linked_transaction_id),
+    is_recurring: b.is_recurring === true || b.is_recurring === 'Yes', frequency: FREQUENCIES.includes(b.frequency) ? b.frequency : '',
+    end_date: s0(b.end_date), notes: s0(b.notes), next_bill_id: s0(b.next_bill_id),
+  }));
+  return db;
+}
+
+function nextId(list, key) {
+  const [prefix, width] = ID_SPEC[key];
+  let max = 0;
+  for (const x of list) {
+    if (x.id && x.id.startsWith(prefix)) { const n = parseInt(x.id.slice(prefix.length), 10); if (n > max) max = n; }
+  }
+  return prefix + pad(max + 1, width);
+}
+function countsOf(db) {
+  return { accounts: db.accounts.length, categories: db.categories.length, transactions: db.transactions.length, transfers: db.transfers.length, recurring: db.recurring.length, bills: db.bills.length };
+}
+
+/* ---------- Lookups ---------- */
+function acctById(db, id) { return db.accounts.find((a) => a.id === id); }
+function acctByName(db, name) { const n = norm(name); return n ? db.accounts.find((a) => norm(a.name) === n) : undefined; }
+function acctName(db, id) { const a = acctById(db, id); return a ? a.name : (id ? '(missing account)' : ''); }
+function allPayees(db) {
+  const set = new Map();
+  for (const t of db.transactions) if (t.payee && !t.transfer_id) set.set(norm(t.payee), t.payee);
+  for (const b of db.bills) if (b.payee) set.set(norm(b.payee), b.payee);
+  for (const r of db.recurring) if (r.payee) set.set(norm(r.payee), r.payee);
+  return [...set.values()].sort((a, b) => a.localeCompare(b));
+}
+
+/* ---------- Categories ---------- */
+function catPath(c) { return c.parent_name ? c.parent_name + ' > ' + c.name : c.name; }
+function normPath(s) { return String(s ?? '').split('>').map((x) => x.trim()).filter(Boolean).join(' > '); }
+function catTree(db) {
+  const byName = (a, b) => a.name.localeCompare(b.name);
+  const tops = db.categories.filter((c) => !c.parent_name).sort(byName);
+  const out = [];
+  for (const t of tops) {
+    out.push({ cat: t, path: t.name, depth: 0 });
+    for (const ch of db.categories.filter((c) => norm(c.parent_name) === norm(t.name)).sort(byName)) {
+      out.push({ cat: ch, path: catPath(ch), depth: 1 });
+    }
+  }
+  // Orphans (parent missing) last, so nothing disappears from view
+  for (const c of db.categories) if (c.parent_name && !tops.some((t) => norm(t.name) === norm(c.parent_name))) out.push({ cat: c, path: catPath(c), depth: 1, orphan: true });
+  return out;
+}
+function canonicalCat(db, s) {
+  const p = norm(normPath(s));
+  if (!p) return '';
+  const c = db.categories.find((x) => norm(catPath(x)) === p);
+  return c ? catPath(c) : null;
+}
+function txnInCategory(t, sel) {
+  if (!sel) return true;
+  if (sel === '__none__') return !t.category && !t.transfer_id;
+  if (sel === '__transfer__') return !!t.transfer_id;
+  const c = t.category || '';
+  return c === sel || c.startsWith(sel + ' > ');
+}
+
+/* ---------- Ordering and balances (rules 1-4) ---------- */
+function txnSort(a, b) {
+  if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+  if ((a.entry_order || 0) !== (b.entry_order || 0)) return (a.entry_order || 0) - (b.entry_order || 0);
+  return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+}
+function computeBalances(db) {
+  const byAcct = new Map();
+  for (const a of db.accounts) {
+    const open = toCents(a.opening_balance) || 0;
+    byAcct.set(a.id, { open, run: open, clr: open, count: 0 });
+  }
+  const row = new Map();
+  const sorted = [...db.transactions].sort(txnSort);
+  for (const t of sorted) {
+    const b = byAcct.get(t.account_id);
+    if (!b) continue;
+    const c = toCents(t.amount);
+    b.run += c;
+    if (t.cleared) b.clr += c;
+    b.count++;
+    row.set(t.id, { run: b.run, clr: b.clr });
+  }
+  return { byAcct, row, sorted };
+}
+function nextEntryOrder(db, date, skipId) {
+  let max = 0;
+  for (const t of db.transactions) if (t.date === date && t.id !== skipId && (t.entry_order || 0) > max) max = t.entry_order;
+  return max + 1;
+}
+// Rule 7
+function totalsOf(txns) {
+  let inC = 0, outC = 0;
+  for (const t of txns) { const c = toCents(t.amount); if (c > 0) inC += c; else outC += -c; }
+  return { inC, outC, net: inC - outC, count: txns.length };
+}
+
+/* ---------- Transactions ---------- */
+function saveTxn(db, input) {
+  if (!isDate(input.date)) return { error: 'Date: enter a valid date.' };
+  if (!acctById(db, input.account_id)) return { error: 'Account: choose an account.' };
+  if (!isFinite(input.amountC) || input.amountC === 0) return { error: 'Amount: enter an amount greater than zero.' };
+  const cat = canonicalCat(db, input.category || '');
+  if (cat === null) return { error: `Category: "${input.category}" does not exist. Add it on the Categories tab first.` };
+  let t = input.id ? db.transactions.find((x) => x.id === input.id) : null;
+  if (!t) {
+    t = { id: nextId(db.transactions, 'transactions'), date: input.date, account_id: '', payee: '', description: '', category: '', check_number: '', amount: 0, cleared: false, transfer_id: '', entry_order: nextEntryOrder(db, input.date) };
+    db.transactions.push(t);
+  } else if (t.date !== input.date) {
+    t.entry_order = nextEntryOrder(db, input.date, t.id);
+  }
+  Object.assign(t, {
+    date: input.date, account_id: input.account_id, payee: (input.payee || '').trim(), description: (input.description || '').trim(),
+    category: cat, check_number: String(input.check_number || '').trim(), amount: centsToNum(input.amountC), cleared: !!input.cleared,
+  });
+  return { txn: t };
+}
+function deleteTxn(db, id) {
+  const t = db.transactions.find((x) => x.id === id);
+  if (!t) return;
+  if (t.transfer_id) return deleteTransfer(db, t.transfer_id);
+  for (const b of db.bills) {
+    if (b.linked_transaction_id === id) { b.status = 'Unpaid'; b.paid_date = ''; b.linked_transaction_id = ''; }
+  }
+  db.transactions = db.transactions.filter((x) => x.id !== id);
+}
+function lastCategoryForPayee(db, payee) {
+  const p = norm(payee);
+  if (!p) return '';
+  const hits = db.transactions.filter((t) => norm(t.payee) === p && t.category).sort(txnSort);
+  return hits.length ? hits[hits.length - 1].category : '';
+}
+
+/* ---------- Accounts ---------- */
+function saveAccount(db, input) {
+  const name = (input.name || '').trim();
+  if (!name) return { error: 'Account name: enter a name.' };
+  if (name.includes('>')) return { error: 'Account name: please do not use the ">" character.' };
+  if (db.accounts.some((a) => a.id !== input.id && norm(a.name) === norm(name))) return { error: `Account name: there is already an account called "${name}".` };
+  if (!ACCOUNT_TYPES.includes(input.type)) return { error: 'Type: choose Checking, Savings, Credit Card, Cash, or Other.' };
+  if (!isFinite(input.openingC)) return { error: 'Opening balance: enter a number, like 1000.00 (use a minus sign for money owed).' };
+  if (input.opening_date && !isDate(input.opening_date)) return { error: 'Opening date: enter a valid date or leave it blank.' };
+  let a = input.id ? acctById(db, input.id) : null;
+  if (!a) { a = { id: nextId(db.accounts, 'accounts') }; db.accounts.push(a); }
+  Object.assign(a, { name, type: input.type, opening_balance: centsToNum(input.openingC), opening_date: input.opening_date || '', notes: (input.notes || '').trim(), is_active: !!input.is_active });
+  refreshTransferPayees(db);
+  return { account: a };
+}
+function accountUsage(db, id) {
+  return db.transactions.filter((t) => t.account_id === id).length + db.recurring.filter((r) => r.account_id === id).length + db.bills.filter((b) => b.account_id === id).length;
+}
+function deleteAccount(db, id) {
+  if (accountUsage(db, id)) return { error: 'This account has entries, recurring items, or bills, so it cannot be deleted. Turn off "Active" instead — it will be hidden from pickers but keep its history.' };
+  db.accounts = db.accounts.filter((a) => a.id !== id);
+  return {};
+}
+
+/* ---------- Transfers (rule 5) ---------- */
+function transferSides(db, id) {
+  const all = db.transactions.filter((t) => t.transfer_id === id);
+  return { all, from: all.find((t) => toCents(t.amount) < 0), to: all.find((t) => toCents(t.amount) > 0) };
+}
+function refreshTransferPayees(db) {
+  for (const x of db.transfers) {
+    const s = transferSides(db, x.id);
+    if (s.from) s.from.payee = 'Transfer to ' + acctName(db, x.to_account_id);
+    if (s.to) s.to.payee = 'Transfer from ' + acctName(db, x.from_account_id);
+  }
+}
+function saveTransfer(db, input) {
+  if (!isDate(input.date)) return { error: 'Date: enter a valid date.' };
+  if (!acctById(db, input.from_account_id)) return { error: 'From account: choose the account the money leaves.' };
+  if (!acctById(db, input.to_account_id)) return { error: 'To account: choose the account the money arrives in.' };
+  if (input.from_account_id === input.to_account_id) return { error: 'From and To are the same account. A transfer moves money between two different accounts, so choose a different To account.' };
+  if (!isFinite(input.amountC) || input.amountC <= 0) return { error: 'Amount: enter an amount greater than zero.' };
+  let x = input.id ? db.transfers.find((t) => t.id === input.id) : null;
+  if (!x) { x = { id: nextId(db.transfers, 'transfers') }; db.transfers.push(x); }
+  const dateChanged = x.date !== input.date;
+  Object.assign(x, { date: input.date, from_account_id: input.from_account_id, to_account_id: input.to_account_id, amount: centsToNum(input.amountC), description: (input.description || '').trim() });
+  let { from, to, all } = transferSides(db, x.id);
+  // Remove any stray extra sides so there are always exactly two.
+  const keep = new Set([from && from.id, to && to.id]);
+  if (all.length > 2 || all.some((t) => !keep.has(t.id))) db.transactions = db.transactions.filter((t) => t.transfer_id !== x.id || keep.has(t.id));
+  const mk = () => {
+    const t = { id: nextId(db.transactions, 'transactions'), date: x.date, account_id: '', payee: '', description: '', category: '', check_number: '', amount: 0, cleared: false, transfer_id: x.id, entry_order: nextEntryOrder(db, x.date) };
+    db.transactions.push(t);
+    return t;
+  };
+  if (!from) from = mk();
+  if (!to) to = mk();
+  for (const t of [from, to]) {
+    if (dateChanged && t.date !== x.date) t.entry_order = nextEntryOrder(db, x.date, t.id);
+    t.date = x.date;
+    t.description = x.description;
+    t.category = '';
+    if (input.cleared !== undefined) t.cleared = !!input.cleared;
+  }
+  from.account_id = x.from_account_id; from.amount = -x.amount;
+  to.account_id = x.to_account_id; to.amount = x.amount;
+  if (input.check_number !== undefined) from.check_number = String(input.check_number || '').trim();
+  refreshTransferPayees(db);
+  return { transfer: x };
+}
+function deleteTransfer(db, id) {
+  db.transfers = db.transfers.filter((x) => x.id !== id);
+  db.transactions = db.transactions.filter((t) => t.transfer_id !== id);
+}
+
+/* ---------- Category editing ---------- */
+function categoryUsage(db, path) {
+  const hit = (c) => c === path;
+  return db.transactions.filter((t) => hit(t.category)).length + db.recurring.filter((r) => hit(r.category)).length + db.bills.filter((b) => hit(b.category)).length;
+}
+function renameCategoryRefs(db, oldPath, newPath) {
+  const fix = (c) => (c === oldPath ? newPath : c && c.startsWith(oldPath + ' > ') ? newPath + c.slice(oldPath.length) : c);
+  for (const t of db.transactions) t.category = fix(t.category);
+  for (const r of db.recurring) r.category = fix(r.category);
+  for (const b of db.bills) b.category = fix(b.category);
+}
+function saveCategory(db, input) {
+  const name = (input.name || '').trim();
+  const parent = (input.parent_name || '').trim();
+  if (!name) return { error: 'Name: enter a category name.' };
+  if (name.includes('>')) return { error: 'Name: do not type ">" — choose a parent category instead to make a subcategory.' };
+  if (!CAT_KINDS.includes(input.kind)) return { error: 'Kind: choose Income, Expense, or Both.' };
+  const existing = input.id ? db.categories.find((c) => c.id === input.id) : null;
+  if (parent) {
+    const p = db.categories.find((c) => !c.parent_name && norm(c.name) === norm(parent));
+    if (!p) return { error: `Parent: "${parent}" is not a top-level category.` };
+    if (existing && p.id === existing.id) return { error: 'Parent: a category cannot be its own parent.' };
+    if (existing && !existing.parent_name && db.categories.some((c) => norm(c.parent_name) === norm(existing.name))) {
+      return { error: 'This category has subcategories, so it cannot become a subcategory itself (only one level of subcategory is allowed). Move or delete its subcategories first.' };
+    }
+  }
+  const parentName = parent ? db.categories.find((c) => !c.parent_name && norm(c.name) === norm(parent)).name : '';
+  const newPath = parentName ? parentName + ' > ' + name : name;
+  if (db.categories.some((c) => c.id !== input.id && norm(catPath(c)) === norm(newPath))) return { error: `"${newPath}" already exists.` };
+  if (existing) {
+    const oldPath = catPath(existing);
+    const oldName = existing.name;
+    Object.assign(existing, { name, parent_name: parentName, kind: input.kind });
+    if (oldPath !== newPath) {
+      renameCategoryRefs(db, oldPath, newPath);
+      if (!parentName) for (const c of db.categories) if (norm(c.parent_name) === norm(oldName)) c.parent_name = name;
+    }
+    return { category: existing };
+  }
+  const c = { id: nextId(db.categories, 'categories'), name, parent_name: parentName, kind: input.kind };
+  db.categories.push(c);
+  return { category: c };
+}
+function deleteCategory(db, id, replacement) {
+  const c = db.categories.find((x) => x.id === id);
+  if (!c) return {};
+  if (!c.parent_name && db.categories.some((x) => norm(x.parent_name) === norm(c.name))) {
+    return { error: `"${c.name}" has subcategories. Delete or move its subcategories first.` };
+  }
+  const path = catPath(c);
+  const rep = replacement ? canonicalCat(db, replacement) : '';
+  if (rep === null) return { error: 'Replacement category: choose a category from the list.' };
+  if (rep === path) return { error: 'Replacement category: choose a different category than the one being deleted.' };
+  for (const t of db.transactions) if (t.category === path) t.category = rep;
+  for (const r of db.recurring) if (r.category === path) r.category = rep;
+  for (const b of db.bills) if (b.category === path) b.category = rep;
+  db.categories = db.categories.filter((x) => x.id !== id);
+  return {};
+}
+// Rule 6: parents include their subcategories. Transfers are not counted.
+function categorySummary(db, txns) {
+  const map = new Map();
+  const add = (p, c) => {
+    if (!map.has(p)) map.set(p, { inC: 0, outC: 0, count: 0 });
+    const m = map.get(p);
+    if (c > 0) m.inC += c; else m.outC += -c;
+    m.count++;
+  };
+  for (const t of txns) if (!t.transfer_id) add(t.category || '', toCents(t.amount));
+  const rows = [];
+  const used = new Set();
+  const tops = db.categories.filter((c) => !c.parent_name).sort((a, b) => a.name.localeCompare(b.name));
+  for (const top of tops) {
+    const own = map.get(top.name) || { inC: 0, outC: 0, count: 0 };
+    used.add(top.name);
+    const kids = [];
+    for (const ch of db.categories.filter((c) => norm(c.parent_name) === norm(top.name)).sort((a, b) => a.name.localeCompare(b.name))) {
+      const p = catPath(ch);
+      used.add(p);
+      const m = map.get(p);
+      if (m && m.count) kids.push({ path: p, name: ch.name, depth: 1, ...m, net: m.inC - m.outC });
+    }
+    const tot = kids.reduce((a, k) => ({ inC: a.inC + k.inC, outC: a.outC + k.outC, count: a.count + k.count }), { ...own });
+    if (tot.count) {
+      rows.push({ path: top.name, name: top.name, depth: 0, ...tot, net: tot.inC - tot.outC, ownCount: own.count });
+      rows.push(...kids);
+    }
+  }
+  for (const [p, m] of map) {
+    if (used.has(p) || p === '' || !m.count) continue;
+    rows.push({ path: p, name: p + ' (not in category list)', depth: 0, ...m, net: m.inC - m.outC });
+  }
+  const un = map.get('');
+  if (un && un.count) rows.push({ path: '__none__', name: 'Uncategorized', depth: 0, ...un, net: un.inC - un.outC });
+  const all = totalsOf(txns.filter((t) => !t.transfer_id));
+  return { rows, totals: all };
+}
+
+/* ---------- Report filtering ---------- */
+function filterTxns(db, f) {
+  const payees = allPayees(db).map(norm);
+  const p = norm(f.payee);
+  const exactPayee = p && payees.includes(p);
+  const q = norm(f.q);
+  return db.transactions.filter((t) => {
+    if (f.start && t.date < f.start) return false;
+    if (f.end && t.date > f.end) return false;
+    if (f.acct && t.account_id !== f.acct) return false;
+    if (f.cat && !txnInCategory(t, f.cat)) return false;
+    if (f.status === 'cleared' && !t.cleared) return false;
+    if (f.status === 'pending' && t.cleared) return false;
+    if (p) { const tp = norm(t.payee); if (exactPayee ? tp !== p : !tp.includes(p)) return false; }
+    if (q) {
+      const c = Math.abs(toCents(t.amount));
+      const hay = [t.payee, t.description, t.category, t.check_number, fixed2(c), fmt(c), String(centsToNum(c))].map(norm).join('\u0001');
+      if (!hay.includes(q.replace(/^\$/, '').replace(/,/g, '')) && !hay.includes(q)) return false;
+    }
+    return true;
+  }).sort(txnSort);
+}
+function presetRange(preset, t) {
+  const y = t.slice(0, 4);
+  switch (preset) {
+    case 'this_month': return [monthStart(t), monthEnd(t)];
+    case 'last_month': { const lm = addMonths(monthStart(t), -1); return [lm, monthEnd(lm)]; }
+    case 'ytd': return [y + '-01-01', t];
+    case 'this_year': return [y + '-01-01', y + '-12-31'];
+    case 'last_year': return [(+y - 1) + '-01-01', (+y - 1) + '-12-31'];
+    case 'all': return ['', ''];
+  }
+  return null;
+}
+
+/* ---------- Recurring (rules 9, section 10) ---------- */
+function recurringEnded(r) { return !!(r.end_date && r.next_due_date && r.next_due_date > r.end_date); }
+function saveRecurring(db, input) {
+  if (!(input.payee || '').trim()) return { error: 'Payee: enter who this is paid to or received from.' };
+  if (!isFinite(input.amountC) || input.amountC <= 0) return { error: 'Amount: enter an amount greater than zero.' };
+  if (!FREQUENCIES.includes(input.frequency)) return { error: 'Frequency: choose how often it repeats.' };
+  if (!acctById(db, input.account_id)) return { error: 'Account: choose the account it posts to.' };
+  if (!isDate(input.start_date)) return { error: 'Start date: enter a valid date.' };
+  const next = input.next_due_date || input.start_date;
+  if (!isDate(next)) return { error: 'Next due date: enter a valid date.' };
+  if (input.end_date && !isDate(input.end_date)) return { error: 'End date: enter a valid date or leave it blank.' };
+  if (input.end_date && input.end_date < input.start_date) return { error: 'End date: must be on or after the start date.' };
+  const days = Number(input.days_in_advance);
+  if (!Number.isInteger(days) || days < 0 || days > 90) return { error: 'Days in advance: enter a whole number from 0 to 90.' };
+  const cat = canonicalCat(db, input.category || '');
+  if (cat === null) return { error: `Category: "${input.category}" does not exist.` };
+  let r = input.id ? db.recurring.find((x) => x.id === input.id) : null;
+  if (!r) { r = { id: nextId(db.recurring, 'recurring'), last_posted_for_date: '' }; db.recurring.push(r); }
+  Object.assign(r, {
+    payee: input.payee.trim(), direction: input.direction === 'In' ? 'In' : 'Out', amount: centsToNum(input.amountC), account_id: input.account_id,
+    category: cat, frequency: input.frequency, start_date: input.start_date, next_due_date: next, end_date: input.end_date || '',
+    auto_post: !!input.auto_post, days_in_advance: days, status: input.status === 'Paused' ? 'Paused' : 'Active', memo: (input.memo || '').trim(),
+  });
+  return { recurring: r };
+}
+function postRecurring(db, r, opts = {}) {
+  if (recurringEnded(r)) return { error: 'This recurring entry has passed its end date.' };
+  const due = r.next_due_date;
+  const c = toCents(r.amount);
+  const res = saveTxn(db, { date: due, account_id: r.account_id, payee: r.payee, description: r.memo, category: r.category, amountC: r.direction === 'In' ? c : -c, cleared: false });
+  if (res.error) return res;
+  res.txn.recurring_id = r.id;
+  if (opts.auto) res.txn.auto_posted_on = opts.today;
+  r.last_posted_for_date = due;
+  r.next_due_date = advanceDate(due, r.frequency);
+  return res;
+}
+function skipRecurring(r) { r.next_due_date = advanceDate(r.next_due_date, r.frequency); }
+function autoPostDate(r) { return addDays(r.next_due_date, -(r.days_in_advance || 0)); }
+function runAutoPost(db, todayStr) {
+  const posted = [];
+  for (const r of db.recurring) {
+    if (!r.auto_post || r.status !== 'Active' || !acctById(db, r.account_id)) continue;
+    for (let guard = 0; guard < 1000; guard++) {
+      if (!isDate(r.next_due_date) || recurringEnded(r)) break;
+      if (todayStr < autoPostDate(r)) break;
+      if (r.last_posted_for_date === r.next_due_date) { r.next_due_date = advanceDate(r.next_due_date, r.frequency); continue; }
+      const res = postRecurring(db, r, { auto: true, today: todayStr });
+      if (res.error) break;
+      posted.push(res.txn);
+    }
+  }
+  return posted;
+}
+
+/* ---------- Bills (rule 8) ---------- */
+function billStatus(b, todayStr) {
+  if (b.status === 'Paid') return 'Paid';
+  return b.due_date && b.due_date < todayStr ? 'Past Due' : 'Unpaid';
+}
+function saveBill(db, input) {
+  if (!(input.payee || '').trim()) return { error: 'Payee: enter who the bill is owed to.' };
+  if (!isFinite(input.amountC) || input.amountC <= 0) return { error: 'Amount due: enter an amount greater than zero.' };
+  if (!isDate(input.due_date)) return { error: 'Due date: enter a valid date.' };
+  if (input.account_id && !acctById(db, input.account_id)) return { error: 'Pay-from account: choose an account.' };
+  const cat = canonicalCat(db, input.category || '');
+  if (cat === null) return { error: `Category: "${input.category}" does not exist.` };
+  if (input.is_recurring && !FREQUENCIES.includes(input.frequency)) return { error: 'Frequency: choose how often this bill repeats.' };
+  if (input.end_date && !isDate(input.end_date)) return { error: 'End date: enter a valid date or leave it blank.' };
+  let b = input.id ? db.bills.find((x) => x.id === input.id) : null;
+  if (!b) { b = { id: nextId(db.bills, 'bills'), status: 'Unpaid', paid_date: '', linked_transaction_id: '', next_bill_id: '' }; db.bills.push(b); }
+  Object.assign(b, {
+    payee: input.payee.trim(), amount: centsToNum(input.amountC), due_date: input.due_date, account_id: input.account_id || '', category: cat,
+    is_recurring: !!input.is_recurring, frequency: input.is_recurring ? input.frequency : '', end_date: input.is_recurring ? (input.end_date || '') : '', notes: (input.notes || '').trim(),
+  });
+  return { bill: b };
+}
+function payBill(db, b, p) {
+  if (!isDate(p.date)) return { error: 'Date paid: enter a valid date.' };
+  if (!acctById(db, p.account_id)) return { error: 'Account: choose the account the payment comes from.' };
+  if (!isFinite(p.amountC) || p.amountC <= 0) return { error: 'Amount: enter an amount greater than zero.' };
+  const res = saveTxn(db, { date: p.date, account_id: p.account_id, payee: b.payee, description: b.notes ? 'Bill payment - ' + b.notes : 'Bill payment', category: b.category, check_number: p.check_number, amountC: -p.amountC, cleared: !!p.cleared });
+  if (res.error) return res;
+  res.txn.bill_id = b.id;
+  b.status = 'Paid';
+  b.paid_date = p.date;
+  b.linked_transaction_id = res.txn.id;
+  if (!b.account_id) b.account_id = p.account_id;
+  let next = null;
+  if (b.is_recurring && FREQUENCIES.includes(b.frequency) && !(b.next_bill_id && db.bills.some((x) => x.id === b.next_bill_id))) {
+    const due = advanceDate(b.due_date, b.frequency);
+    if (!b.end_date || due <= b.end_date) {
+      next = { id: nextId(db.bills, 'bills'), payee: b.payee, amount: b.amount, due_date: due, account_id: b.account_id, category: b.category, status: 'Unpaid', paid_date: '', linked_transaction_id: '', is_recurring: true, frequency: b.frequency, end_date: b.end_date, notes: b.notes, next_bill_id: '' };
+      db.bills.push(next);
+      b.next_bill_id = next.id;
+    }
+  }
+  return { txn: res.txn, next };
+}
+function unpayBill(db, b) {
+  if (b.linked_transaction_id) db.transactions = db.transactions.filter((t) => t.id !== b.linked_transaction_id);
+  b.status = 'Unpaid'; b.paid_date = ''; b.linked_transaction_id = '';
+  if (b.next_bill_id) {
+    const nb = db.bills.find((x) => x.id === b.next_bill_id);
+    if (nb && nb.status === 'Unpaid' && !nb.linked_transaction_id) db.bills = db.bills.filter((x) => x.id !== nb.id);
+    b.next_bill_id = '';
+  }
+}
+function deleteBill(db, id) {
+  for (const t of db.transactions) if (t.bill_id === id) delete t.bill_id;
+  db.bills = db.bills.filter((b) => b.id !== id);
+}
+
+/* ---------- Data check ---------- */
+function dataCheck(db) {
+  const p = [];
+  for (const key of Object.keys(ID_SPEC)) {
+    const seen = new Set();
+    for (const x of db[key]) {
+      if (!x.id) p.push(`A record in ${key} has no id.`);
+      else if (seen.has(x.id)) p.push(`Two records in ${key} share the id ${x.id}.`);
+      seen.add(x.id);
+    }
+  }
+  const names = new Set();
+  for (const a of db.accounts) { if (names.has(norm(a.name))) p.push(`Two accounts are named "${a.name}".`); names.add(norm(a.name)); }
+  const xfers = new Map(db.transfers.map((x) => [x.id, x]));
+  for (const t of db.transactions) {
+    if (!acctById(db, t.account_id)) p.push(`Entry ${t.id} (${fmtDate(t.date)}, ${t.payee || 'no payee'}) points at an account that does not exist (${t.account_id || 'blank'}).`);
+    if (!isDate(t.date)) p.push(`Entry ${t.id} has an invalid date "${t.date}".`);
+    if (t.category && canonicalCat(db, t.category) === null) p.push(`Entry ${t.id} uses category "${t.category}", which is not in the category list.`);
+    if (t.transfer_id && !xfers.has(t.transfer_id)) p.push(`Entry ${t.id} says it is part of transfer ${t.transfer_id}, but that transfer does not exist.`);
+  }
+  for (const x of db.transfers) {
+    const s = transferSides(db, x.id);
+    if (s.all.length !== 2 || !s.from || !s.to) p.push(`Transfer ${x.id} (${fmtDate(x.date)}) has ${s.all.length === 1 ? 'only one side' : s.all.length + ' sides'} in the register instead of two. Open and save it on the Transfers tab to repair it.`);
+    else if (toCents(s.from.amount) + toCents(s.to.amount) !== 0 || Math.abs(toCents(s.to.amount)) !== toCents(x.amount)) p.push(`Transfer ${x.id}: its two register entries do not match its amount. Open and save it on the Transfers tab to repair it.`);
+    else if (s.from.account_id !== x.from_account_id || s.to.account_id !== x.to_account_id) p.push(`Transfer ${x.id}: its register entries are in different accounts than the transfer says. Open and save it to repair it.`);
+  }
+  for (const c of db.categories) {
+    if (c.parent_name) {
+      const par = db.categories.find((x) => norm(x.name) === norm(c.parent_name) && !x.parent_name);
+      if (!par) p.push(`Subcategory "${catPath(c)}" has a parent "${c.parent_name}" that does not exist as a top-level category.`);
+    }
+  }
+  for (const b of db.bills) {
+    if (b.status === 'Paid' && !b.linked_transaction_id) p.push(`Bill ${b.id} (${b.payee}, due ${fmtDate(b.due_date)}) is marked Paid but has no linked register entry.`);
+    else if (b.status === 'Paid' && !db.transactions.some((t) => t.id === b.linked_transaction_id)) p.push(`Bill ${b.id} (${b.payee}) is marked Paid, but its linked register entry ${b.linked_transaction_id} no longer exists.`);
+    if (b.account_id && !acctById(db, b.account_id)) p.push(`Bill ${b.id} (${b.payee}) pays from an account that does not exist.`);
+  }
+  for (const r of db.recurring) {
+    if (!acctById(db, r.account_id)) p.push(`Recurring entry ${r.id} (${r.payee}) posts to an account that does not exist.`);
+    if (!isDate(r.next_due_date)) p.push(`Recurring entry ${r.id} (${r.payee}) has no valid next due date.`);
+  }
+  return p;
+}
+
+/* ---------- Excel / CSV export ---------- */
+function sheetRowsForExport(db) {
+  const an = (id) => (acctById(db, id) || {}).name || '';
+  const bal = computeBalances(db);
+  const tx = [...db.transactions].sort(txnSort);
+  const sheets = {
+    Accounts: db.accounts.map((a) => [a.id, a.name, a.type, a.opening_balance, a.opening_date, a.notes, yesNo(a.is_active)]),
+    Categories: catTree(db).map(({ cat: c }) => [c.id, c.name, c.parent_name, c.kind]),
+    Transactions: tx.map((t) => [t.id, t.date, t.account_id, an(t.account_id), t.payee, t.description, t.category, t.check_number, t.amount, t.cleared ? 'Cleared' : 'Pending', t.transfer_id, t.entry_order]),
+    Transfers: [...db.transfers].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : a.id < b.id ? -1 : 1)).map((x) => [x.id, x.date, an(x.from_account_id), an(x.to_account_id), x.amount, x.description]),
+    Recurring: db.recurring.map((r) => [r.id, r.payee, r.direction, r.amount, an(r.account_id), r.category, r.frequency, r.start_date, r.next_due_date, r.end_date, yesNo(r.auto_post), r.days_in_advance, r.status, r.memo, r.last_posted_for_date]),
+    Bills: db.bills.map((b) => [b.id, b.payee, b.amount, b.due_date, an(b.account_id), b.category, b.status, b.paid_date, b.linked_transaction_id, yesNo(b.is_recurring), b.frequency, b.end_date, b.notes]),
+  };
+  return { sheets, bal, tx };
+}
+const README_ROWS = [
+  ['Dinero workbook - how to use it'],
+  [''],
+  ['Each sheet is one kind of record. Keep the headings in row 1 exactly as they are. Type one record per row.'],
+  ['Dates: type them as YYYY-MM-DD (for example 2026-11-07). Money: plain numbers like 12.50, no $ sign needed.'],
+  ['id: every row needs a unique id. For a new row, copy the pattern and use the next number (for example txn_000043), or leave it blank and the app will create one.'],
+  ['Categories: write a subcategory as Parent > Child, for example Food > Groceries. Only one level of subcategory.'],
+  [''],
+  ['Accounts', 'One row per account. type is Checking, Savings, Credit Card, Cash, or Other. is_active is Yes or No.'],
+  ['Categories', 'One row per category. Leave parent_name blank for a top-level category. kind is Income, Expense, or Both.'],
+  ['Transactions', 'One row per register entry. amount is positive for money in and negative for money out. cleared is Cleared or Pending. entry_order orders entries on the same date.'],
+  ['', 'Running_Balance_In_Excel and Cleared_Running_In_Excel are formulas for viewing in Excel only. The app ignores them when importing.'],
+  ['Transfers', 'One row per transfer between your accounts. amount is positive. Each transfer has two Transactions rows sharing its id in transfer_id. If you type a new transfer here without those rows, the app creates them.'],
+  ['Recurring', 'Scheduled entries. direction is In or Out. frequency is Weekly, Every 2 Weeks, Monthly, Every 2 Months, Quarterly, or Yearly. auto_post is Yes or No; days_in_advance is 0 to 90. status is Active or Paused.'],
+  ['Bills', 'status is Unpaid or Paid (Past Due is worked out by the app). linked_transaction_id is filled in by the app when a bill is paid. is_recurring is Yes or No.'],
+  [''],
+  ['To bring changes back into the app: save this file, then in Dinero open Sync / Settings > Import from Excel.'],
+];
+function buildWorkbook(db) {
+  const { sheets, bal, tx } = sheetRowsForExport(db);
+  const W = {
+    Accounts: [12, 24, 12, 16, 13, 30, 10], Categories: [10, 22, 22, 10],
+    Transactions: [13, 12, 11, 22, 24, 30, 26, 12, 12, 10, 10, 11, 24, 24],
+    Transfers: [11, 12, 22, 22, 12, 30], Recurring: [10, 22, 10, 12, 22, 24, 15, 12, 14, 12, 10, 15, 10, 26, 20],
+    Bills: [11, 22, 12, 12, 22, 24, 10, 12, 20, 12, 15, 12, 26],
+  };
+  const STY = {
+    Accounts: ['text', 'text', 'text', 'money', 'text', 'text', 'text'], Categories: ['text', 'text', 'text', 'text'],
+    Transactions: ['text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'money', 'text', 'text', null, 'money', 'money'],
+    Transfers: ['text', 'text', 'text', 'text', 'money', 'text'],
+    Recurring: ['text', 'text', 'text', 'money', 'text', 'text', 'text', 'text', 'text', 'text', 'text', null, 'text', 'text', 'text'],
+    Bills: ['text', 'text', 'money', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text'],
+  };
+  const out = [];
+  for (const name of Object.keys(SHEET_COLUMNS)) {
+    const header = [...SHEET_COLUMNS[name]];
+    let rows = sheets[name];
+    if (name === 'Transactions') {
+      header.push('Running_Balance_In_Excel', 'Cleared_Running_In_Excel');
+      rows = rows.map((r, i) => {
+        const n = i + 2;
+        const b = bal.row.get(tx[i].id);
+        const open = `IFERROR(VLOOKUP(C${n},Accounts!$A:$D,4,FALSE),0)`;
+        return [...r,
+          { f: `${open}+SUMIFS($I$2:I${n},$C$2:C${n},C${n})`, v: b ? centsToNum(b.run) : null },
+          { f: `${open}+SUMIFS($I$2:I${n},$C$2:C${n},C${n},$J$2:J${n},"Cleared")`, v: b ? centsToNum(b.clr) : null }];
+      });
+    }
+    out.push({ name, rows: [header, ...rows], widths: W[name], colStyles: STY[name] });
+  }
+  out.push({ name: 'README', rows: README_ROWS, widths: [16, 140], boldFirstRow: true, freeze: false });
+  return buildXlsx(out);
+}
+function buildCsvZip(db) {
+  const { sheets } = sheetRowsForExport(db);
+  return zipFiles(Object.keys(SHEET_COLUMNS).map((name) => ({ name: name + '.csv', data: toCSV([SHEET_COLUMNS[name], ...sheets[name]]) })));
+}
+
+/* ---------- Excel import with validation ---------- */
+function importWorkbook(cur, book, mode) {
+  const errors = [], warnings = [];
+  const stats = { generated: 0, skipped: 0, sidesCreated: 0, added: {} };
+  const db = mode === 'replace' ? emptyDb() : normalizeDb(deepClone(cur));
+  const existingIds = {};
+  for (const k of Object.keys(ID_SPEC)) existingIds[k] = new Set(db[k].map((x) => x.id));
+  const sheetKey = (name) => Object.keys(book).find((k) => norm(k) === norm(name));
+
+  const readSheet = (name) => {
+    const key = sheetKey(name);
+    if (!key) {
+      if (mode === 'replace' && (name === 'Accounts' || name === 'Transactions')) errors.push(`The workbook has no "${name}" sheet. Replacing would erase all your ${name.toLowerCase()}. Add the sheet (headings in row 1) or choose "Add to existing data".`);
+      else if (mode === 'replace' && sheetKey('Accounts')) warnings.push(`No "${name}" sheet was found, so this device will have no ${name.toLowerCase()} after the import.`);
+      return [];
+    }
+    const rows = book[key] || [];
+    const header = (rows[0] || []).map((h) => norm(h));
+    const idx = {};
+    for (const c of SHEET_COLUMNS[name]) idx[c] = header.indexOf(c);
+    const missing = REQUIRED_COLUMNS[name].filter((c) => idx[c] < 0);
+    if (name === 'Transactions' && idx.account_id < 0 && idx.account_name < 0) missing.push('account_id or account_name');
+    if (missing.length) { errors.push(`${name} sheet: row 1 is missing the column heading${missing.length > 1 ? 's' : ''} ${missing.map((m) => `"${m}"`).join(', ')}.`); return []; }
+    const out = [];
+    for (let i = 1; i < rows.length; i++) {
+      const r = rows[i] || [];
+      const get = (c) => (idx[c] >= 0 ? r[idx[c]] : undefined);
+      const blank = SHEET_COLUMNS[name].every((c) => { const v = get(c); return v == null || String(v).trim() === ''; });
+      if (!blank) out.push({ row: i + 1, get });
+    }
+    return out;
+  };
+  const str = (v) => (v == null ? '' : typeof v === 'boolean' ? (v ? 'Yes' : 'No') : String(v).trim());
+  const err = (sheet, row, msg) => errors.push(`${sheet} row ${row}: ${msg}`);
+  const takeId = (sheet, key, row, rawId, seen) => {
+    const id = str(rawId);
+    if (!id) return { id: '' };
+    if (seen.has(id)) { err(sheet, row, `id "${id}" is used more than once (also on row ${seen.get(id)}). Every id must be unique.`); return { bad: true }; }
+    seen.set(id, row);
+    if (mode === 'add' && existingIds[key].has(id)) { stats.skipped++; return { skip: true }; }
+    return { id };
+  };
+  const dateField = (sheet, row, label, raw, required) => {
+    const d = parseAnyDate(raw);
+    if (d === null) { err(sheet, row, `${label} "${str(raw)}" is not a date. Use YYYY-MM-DD, for example 2026-11-07.`); return undefined; }
+    if (!d && required) { err(sheet, row, `${label} is missing.`); return undefined; }
+    return d;
+  };
+  const moneyField = (sheet, row, label, raw, { required = true, positive = false, dflt = 0 } = {}) => {
+    if (raw == null || String(raw).trim() === '') { if (required) { err(sheet, row, `${label} is missing.`); return undefined; } return dflt; }
+    const n = parseMoney(raw);
+    if (!isFinite(n)) { err(sheet, row, `${label} is not a number ("${str(raw)}").`); return undefined; }
+    if (positive && n <= 0) { err(sheet, row, `${label} must be a positive number.`); return undefined; }
+    return centsToNum(toCents(n));
+  };
+  const catField = (sheet, row, raw) => {
+    const c = str(raw);
+    if (!c) return '';
+    const canon = canonicalCat(db, c);
+    if (canon === null) { err(sheet, row, `category "${c}" is not in the Categories sheet. Add it there (as Parent > Child for a subcategory) or fix the spelling.`); return undefined; }
+    return canon;
+  };
+  const acctField = (sheet, row, label, rawName, rawId, required) => {
+    const id = str(rawId), name = str(rawName);
+    if (id && acctById(db, id)) return id;
+    if (name) { const a = acctByName(db, name); if (a) return a.id; err(sheet, row, `${label} "${name}" is not in the Accounts sheet.`); return undefined; }
+    if (id) { err(sheet, row, `${label} id "${id}" is not in the Accounts sheet.`); return undefined; }
+    if (required) { err(sheet, row, `${label} is missing.`); return undefined; }
+    return '';
+  };
+  const choice = (sheet, row, label, raw, options, dflt) => {
+    const s = norm(raw);
+    if (!s) return dflt;
+    const hit = options.find((o) => norm(o) === s);
+    if (!hit) { err(sheet, row, `${label} must be ${options.slice(0, -1).map((o) => `"${o}"`).join(', ')} or "${options[options.length - 1]}" (found "${str(raw)}").`); return undefined; }
+    return hit;
+  };
+  const yn = (sheet, row, label, raw, dflt) => {
+    const v = parseYesNo(raw, dflt);
+    if (v === undefined) { err(sheet, row, `${label} must be Yes or No (found "${str(raw)}").`); }
+    return v;
+  };
+  const assignIds = (key, list) => {
+    for (const x of list) if (!x.id) { x.id = nextId(db[key], key); stats.generated++; }
+  };
+  const before = errors.length;
+
+  // Accounts
+  { const seen = new Map(); const added = [];
+    for (const { row, get } of readSheet('Accounts')) {
+      const e0 = errors.length;
+      const id = takeId('Accounts', 'accounts', row, get('id'), seen);
+      if (id.skip || id.bad) continue;
+      const name = str(get('name'));
+      if (!name) err('Accounts', row, 'name is missing.');
+      else if (acctByName(db, name)) err('Accounts', row, `there is already an account named "${name}".`);
+      const type = choice('Accounts', row, 'type', get('type'), ACCOUNT_TYPES, 'Checking');
+      const ob = moneyField('Accounts', row, 'opening_balance', get('opening_balance'), { required: false });
+      const od = dateField('Accounts', row, 'opening_date', get('opening_date'), false);
+      const active = yn('Accounts', row, 'is_active', get('is_active'), true);
+      if (errors.length > e0) continue;
+      const a = { id: id.id, name, type, opening_balance: ob, opening_date: od, notes: str(get('notes')), is_active: active };
+      db.accounts.push(a); added.push(a);
+    }
+    assignIds('accounts', added); stats.added.accounts = added.length; }
+
+  // Categories (top-level first, then subcategories)
+  { const seen = new Map(); const added = []; const rows = readSheet('Categories');
+    const parsed = [];
+    for (const { row, get } of rows) {
+      const e0 = errors.length;
+      const id = takeId('Categories', 'categories', row, get('id'), seen);
+      if (id.skip || id.bad) continue;
+      const name = str(get('name'));
+      if (!name) err('Categories', row, 'name is missing.');
+      else if (name.includes('>')) err('Categories', row, `name "${name}" contains ">". Put the parent in parent_name instead.`);
+      const kind = choice('Categories', row, 'kind', get('kind'), CAT_KINDS, 'Both');
+      if (errors.length > e0) continue;
+      parsed.push({ row, c: { id: id.id, name, parent_name: str(get('parent_name')), kind } });
+    }
+    for (const pass of [0, 1]) {
+      for (const { row, c } of parsed) {
+        if (!!c.parent_name !== !!pass) continue;
+        if (c.parent_name) {
+          const par = db.categories.find((x) => !x.parent_name && norm(x.name) === norm(c.parent_name));
+          if (!par) {
+            const deep = db.categories.find((x) => x.parent_name && norm(x.name) === norm(c.parent_name));
+            err('Categories', row, deep ? `parent_name "${c.parent_name}" is itself a subcategory. Only one level of subcategory is allowed.` : `parent_name "${c.parent_name}" is not a top-level category in this sheet.`);
+            continue;
+          }
+          c.parent_name = par.name;
+        }
+        if (db.categories.some((x) => norm(catPath(x)) === norm(catPath(c)))) { if (mode === 'add') { stats.skipped++; continue; } err('Categories', row, `"${catPath(c)}" is listed more than once.`); continue; }
+        db.categories.push(c); added.push(c);
+      }
+    }
+    assignIds('categories', added); stats.added.categories = added.length; }
+
+  // Transactions
+  const newTx = [];
+  { const seen = new Map();
+    for (const { row, get } of readSheet('Transactions')) {
+      const e0 = errors.length;
+      const id = takeId('Transactions', 'transactions', row, get('id'), seen);
+      if (id.skip || id.bad) continue;
+      const date = dateField('Transactions', row, 'date', get('date'), true);
+      const acct = acctField('Transactions', row, 'account', get('account_name'), get('account_id'), true);
+      const amount = moneyField('Transactions', row, 'amount', get('amount'));
+      const category = catField('Transactions', row, get('category'));
+      let cleared = false;
+      const cv = norm(get('cleared'));
+      if (['cleared', 'yes', 'y', 'true', 'c', 'x', 'r', 'reconciled'].includes(cv) || get('cleared') === true) cleared = true;
+      else if (!['', 'pending', 'no', 'n', 'false', 'p', 'uncleared'].includes(cv) && get('cleared') !== false) err('Transactions', row, `cleared must be "Cleared" or "Pending" (found "${str(get('cleared'))}").`);
+      const eoRaw = get('entry_order');
+      let eo = null;
+      if (eoRaw != null && String(eoRaw).trim() !== '') { eo = Number(eoRaw); if (!isFinite(eo)) err('Transactions', row, `entry_order "${str(eoRaw)}" is not a number.`); }
+      if (errors.length > e0) continue;
+      const t = { id: id.id, date, account_id: acct, payee: str(get('payee')), description: str(get('description')), category, check_number: str(get('check_number')), amount, cleared, transfer_id: str(get('transfer_id')), entry_order: eo };
+      if (mode === 'replace') {
+        const old = cur.transactions.find((x) => x.id && x.id === t.id);
+        if (old) for (const k of ['bill_id', 'recurring_id', 'auto_posted_on']) if (old[k]) t[k] = old[k];
+      }
+      db.transactions.push(t); newTx.push(t);
+    }
+    for (const t of newTx) if (t.entry_order == null) t.entry_order = nextEntryOrder(db, t.date, t.id);
+    assignIds('transactions', newTx); stats.added.transactions = newTx.length; }
+
+  // Transfers
+  { const seen = new Map(); const added = [];
+    for (const { row, get } of readSheet('Transfers')) {
+      const e0 = errors.length;
+      const id = takeId('Transfers', 'transfers', row, get('id'), seen);
+      if (id.skip || id.bad) continue;
+      const date = dateField('Transfers', row, 'date', get('date'), true);
+      const from = acctField('Transfers', row, 'from_account_name', get('from_account_name'), null, true);
+      const to = acctField('Transfers', row, 'to_account_name', get('to_account_name'), null, true);
+      const amount = moneyField('Transfers', row, 'amount', get('amount'), { positive: true });
+      if (from && to && from === to) err('Transfers', row, 'from_account_name and to_account_name are the same account. A transfer must move money between two different accounts.');
+      if (errors.length > e0) continue;
+      const x = { id: id.id, date, from_account_id: from, to_account_id: to, amount, description: str(get('description')) };
+      db.transfers.push(x); added.push(x);
+    }
+    assignIds('transfers', added);
+    if (!errors.length) {
+      for (const x of added) {
+        const s = transferSides(db, x.id);
+        if (!s.all.length) { saveTransfer(db, { ...x, amountC: toCents(x.amount), cleared: false }); stats.sidesCreated++; }
+      }
+    }
+    stats.added.transfers = added.length; }
+
+  // Recurring
+  { const seen = new Map(); const added = [];
+    for (const { row, get } of readSheet('Recurring')) {
+      const e0 = errors.length;
+      const id = takeId('Recurring', 'recurring', row, get('id'), seen);
+      if (id.skip || id.bad) continue;
+      const payee = str(get('payee'));
+      if (!payee) err('Recurring', row, 'payee is missing.');
+      const direction = choice('Recurring', row, 'direction', get('direction'), ['In', 'Out'], 'Out');
+      const amount = moneyField('Recurring', row, 'amount', get('amount'), { positive: true });
+      const acct = acctField('Recurring', row, 'account_name', get('account_name'), null, true);
+      const category = catField('Recurring', row, get('category'));
+      const frequency = choice('Recurring', row, 'frequency', get('frequency'), FREQUENCIES, undefined);
+      if (frequency === undefined && !norm(get('frequency'))) err('Recurring', row, 'frequency is missing.');
+      let start = dateField('Recurring', row, 'start_date', get('start_date'), false);
+      let next = dateField('Recurring', row, 'next_due_date', get('next_due_date'), false);
+      if (start === '' && next === '') err('Recurring', row, 'start_date and next_due_date are both missing. Enter at least one.');
+      if (start === '') start = next;
+      if (next === '') next = start;
+      const end = dateField('Recurring', row, 'end_date', get('end_date'), false);
+      const auto = yn('Recurring', row, 'auto_post', get('auto_post'), false);
+      let days = 0;
+      const dr = get('days_in_advance');
+      if (dr != null && String(dr).trim() !== '') { days = Number(dr); if (!Number.isInteger(days) || days < 0 || days > 90) err('Recurring', row, `days_in_advance must be a whole number from 0 to 90 (found "${str(dr)}").`); }
+      const status = choice('Recurring', row, 'status', get('status'), ['Active', 'Paused'], 'Active');
+      const last = dateField('Recurring', row, 'last_posted_for_date', get('last_posted_for_date'), false);
+      if (errors.length > e0) continue;
+      const r = { id: id.id, payee, direction, amount, account_id: acct, category, frequency, start_date: start, next_due_date: next, end_date: end, auto_post: auto, days_in_advance: days, status, memo: str(get('memo')), last_posted_for_date: last };
+      db.recurring.push(r); added.push(r);
+    }
+    assignIds('recurring', added); stats.added.recurring = added.length; }
+
+  // Bills
+  { const seen = new Map(); const added = [];
+    for (const { row, get } of readSheet('Bills')) {
+      const e0 = errors.length;
+      const id = takeId('Bills', 'bills', row, get('id'), seen);
+      if (id.skip || id.bad) continue;
+      const payee = str(get('payee'));
+      if (!payee) err('Bills', row, 'payee is missing.');
+      const amount = moneyField('Bills', row, 'amount', get('amount'), { positive: true });
+      const due = dateField('Bills', row, 'due_date', get('due_date'), true);
+      const acct = acctField('Bills', row, 'pay_from_account_name', get('pay_from_account_name'), null, false);
+      const category = catField('Bills', row, get('category'));
+      let status = norm(get('status')) === 'past due' ? 'Unpaid' : choice('Bills', row, 'status', get('status'), ['Unpaid', 'Paid'], 'Unpaid');
+      const paid = dateField('Bills', row, 'paid_date', get('paid_date'), false);
+      const isRec = yn('Bills', row, 'is_recurring', get('is_recurring'), false);
+      const freq = str(get('frequency')) ? choice('Bills', row, 'frequency', get('frequency'), FREQUENCIES, '') : '';
+      if (isRec && !freq && !str(get('frequency'))) err('Bills', row, 'is_recurring is Yes, so frequency is required.');
+      const end = dateField('Bills', row, 'end_date', get('end_date'), false);
+      if (errors.length > e0) continue;
+      const b = { id: id.id, payee, amount, due_date: due, account_id: acct, category, status, paid_date: paid, linked_transaction_id: str(get('linked_transaction_id')), is_recurring: !!isRec, frequency: freq || '', end_date: end, notes: str(get('notes')), next_bill_id: '' };
+      if (b.linked_transaction_id && !db.transactions.some((t) => t.id === b.linked_transaction_id)) warnings.push(`Bills row ${row}: linked_transaction_id "${b.linked_transaction_id}" is not in the Transactions sheet.`);
+      db.bills.push(b); added.push(b);
+    }
+    assignIds('bills', added); stats.added.bills = added.length; }
+
+  if (errors.length === before) {
+    for (const t of db.transactions) if (t.transfer_id && !db.transfers.some((x) => x.id === t.transfer_id)) warnings.push(`Transactions: entry ${t.id} has transfer_id "${t.transfer_id}", but there is no such row in the Transfers sheet.`);
+    for (const t of db.transactions) if (t.bill_id && !db.bills.some((b) => b.id === t.bill_id)) delete t.bill_id;
+  }
+  return { errors, warnings, db: normalizeDb(db), stats };
+}
+
+/* ---------- Backup files ---------- */
+function makeBackup(db) {
+  return { app: 'Dinero', format: 'dinero-backup', version: 1, exported_at: new Date().toISOString(), counts: countsOf(db), data: db };
+}
+function parseBackup(text) {
+  let o;
+  try { o = JSON.parse(text); } catch (e) { throw new Error('This file is not a Dinero backup — it could not be read as a backup file (JSON).'); }
+  const d = o && (o.data || o);
+  if (!d || !Array.isArray(d.accounts) || !Array.isArray(d.transactions)) throw new Error('This file is not a Dinero backup — it does not contain accounts and transactions.');
+  return { exported_at: o.exported_at || null, db: normalizeDb(d) };
+}
+
+// ---- ui.js ----
+'use strict';
+/* ===== UI core: state, rendering, modals, events ===== */
+
+let DB = emptyDb();
+let DEV = { lastChanged: null, lastExported: null, lastImported: null, lastAutoCheck: null };
+const UI = {
+  tab: 'dashboard',
+  reg: { acct: '', cat: '', q: '', status: '', newest: false, limit: 600 },
+  bills: { filter: 'all' },
+  rep: { preset: 'this_month', start: '', end: '', acct: '', cat: '', payee: '' },
+  cats: { mode: 'month', month: today().slice(0, 7) },
+  check: null,
+};
+let BAL = null;
+const bal = () => BAL || (BAL = computeBalances(DB));
+const $ = (s, root = document) => root.querySelector(s);
+
+/* ---------- Saving ---------- */
+let saveChain = Promise.resolve();
+function save() {
+  const snapshot = deepClone(DB), dev = { ...DEV };
+  saveChain = saveChain.then(async () => {
+    const ok = await Storage.set('data', snapshot);
+    await Storage.set('device', dev);
+    if (!ok) showBanner('This browser is not letting Dinero save data on this device. Download a backup now from Sync / Settings so nothing is lost.');
+  });
+  return saveChain;
+}
+function commit(msg) {
+  BAL = null;
+  DEV.lastChanged = new Date().toISOString();
+  save();
+  render();
+  if (msg) toast(msg);
+}
+function showBanner(text) { const b = $('#storageBanner'); b.textContent = text; b.hidden = false; }
+
+/* ---------- Small HTML helpers ---------- */
+const btn = (label, act, cls = '', data = {}) =>
+  `<button type="button" class="btn ${cls}" data-act="${act}"${Object.entries(data).map(([k, v]) => ` data-${k}="${esc(v)}"`).join('')}>${label}</button>`;
+const pageHead = (title, actions = '') => `<div class="page-head"><h1>${esc(title)}</h1><div class="actions">${actions}</div></div>`;
+const moneyCls = (c) => (c < 0 ? 'money neg' : 'money');
+function acctOptions(selected, { blank = '', includeInactive = false } = {}) {
+  let h = blank ? `<option value="">${esc(blank)}</option>` : '';
+  const list = DB.accounts.filter((a) => a.is_active || includeInactive || a.id === selected);
+  for (const a of list) h += `<option value="${esc(a.id)}"${a.id === selected ? ' selected' : ''}>${esc(a.name)}${a.is_active ? '' : ' (inactive)'}</option>`;
+  return h;
+}
+function catOptions(selected, { blank = '— No category —', extras = [] } = {}) {
+  let h = blank != null ? `<option value="">${esc(blank)}</option>` : '';
+  for (const [v, l] of extras) h += `<option value="${esc(v)}"${v === selected ? ' selected' : ''}>${esc(l)}</option>`;
+  let found = !selected || extras.some(([v]) => v === selected);
+  for (const { path, depth } of catTree(DB)) {
+    if (path === selected) found = true;
+    h += `<option value="${esc(path)}"${path === selected ? ' selected' : ''}>${depth ? '   ' : ''}${esc(path)}</option>`;
+  }
+  if (!found) h += `<option value="${esc(selected)}" selected>${esc(selected)} (missing)</option>`;
+  return h;
+}
+function freqOptions(selected) { return FREQUENCIES.map((f) => `<option${f === selected ? ' selected' : ''}>${f}</option>`).join(''); }
+function payeeDatalist() { return `<datalist id="payeeList">${allPayees(DB).map((p) => `<option value="${esc(p)}"></option>`).join('')}</datalist>`; }
+function fileStamp() { return today(); }
+
+/* ---------- Toasts ---------- */
+function toast(msg, bad = false) {
+  const el = document.createElement('div');
+  el.className = 'toast' + (bad ? ' bad' : '');
+  el.textContent = msg;
+  $('#toasts').appendChild(el);
+  setTimeout(() => el.remove(), bad ? 6000 : 3200);
+}
+
+/* ---------- Modals ---------- */
+const modalStack = [];
+function openModal({ title, body, wide = false, onClose }) {
+  const el = document.createElement('div');
+  el.className = 'overlay';
+  el.innerHTML = `<div class="modal${wide ? ' wide' : ''}" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+    <header><h2>${esc(title)}</h2><button type="button" class="icon-btn" data-close aria-label="Close">✕</button></header>
+    <div class="modal-body">${body}</div></div>`;
+  el._onClose = onClose;
+  el.querySelector('[data-close]').onclick = () => closeModal(el);
+  document.body.appendChild(el);
+  modalStack.push(el);
+  document.body.style.overflow = 'hidden';
+  if (matchMedia('(pointer: fine)').matches) {
+    const f = el.querySelector('input:not([type=hidden]):not([type=checkbox]):not([type=radio]), select, textarea');
+    if (f) setTimeout(() => f.focus(), 30);
+  }
+  return el;
+}
+function closeModal(el, silent = false) {
+  el = el || modalStack[modalStack.length - 1];
+  if (!el) return;
+  const i = modalStack.indexOf(el);
+  if (i >= 0) modalStack.splice(i, 1);
+  el.remove();
+  if (!modalStack.length) document.body.style.overflow = '';
+  if (!silent && el._onClose) el._onClose();
+}
+function confirmBox({ title, body, ok = 'OK', cancel = 'Cancel', danger = false }) {
+  return new Promise((resolve) => {
+    const m = openModal({ title, body: `<div>${body}</div><div class="actions"><button type="button" class="btn" data-x="no">${esc(cancel)}</button><button type="button" class="btn ${danger ? 'danger' : 'primary'}" data-x="yes">${esc(ok)}</button></div>`, onClose: () => resolve(false) });
+    m.querySelector('[data-x=no]').onclick = () => { closeModal(m, true); resolve(false); };
+    m.querySelector('[data-x=yes]').onclick = () => { closeModal(m, true); resolve(true); };
+  });
+}
+// Builds a modal around a <form>; handler(form) returns an error string to show, or nothing to close.
+function formModal({ title, fields, submit = 'Save', extraButtons = '', wide = false, onSubmit, after }) {
+  const m = openModal({ title, wide, body: `<form novalidate autocomplete="off"><div class="form-error" role="alert"></div>${fields}
+    <div class="actions">${extraButtons}<span class="spacer"></span><button type="button" class="btn" data-x="cancel">Cancel</button><button type="submit" class="btn primary">${esc(submit)}</button></div></form>` });
+  const form = m.querySelector('form');
+  const errBox = m.querySelector('.form-error');
+  m.querySelector('[data-x=cancel]').onclick = () => closeModal(m, true);
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+    const err = await onSubmit(form, m);
+    if (err) { errBox.textContent = err; errBox.scrollIntoView({ block: 'nearest' }); }
+    else closeModal(m, true);
+  };
+  if (after) after(form, m);
+  return m;
+}
+const fv = (form, name) => { const el = form.elements[name]; return el ? (el.type === 'checkbox' ? el.checked : el.value) : ''; };
+function radioVal(form, name) { const el = form.querySelector(`input[name="${name}"]:checked`); return el ? el.value : ''; }
+function amountField(form, name, label) {
+  const raw = String(fv(form, name)).trim();
+  if (!raw) return { error: `${label}: enter an amount.` };
+  const n = parseMoney(raw);
+  if (!isFinite(n)) return { error: `${label}: "${raw}" is not a number. Type something like 12.50.` };
+  if (n <= 0) return { error: `${label}: enter an amount greater than zero. Choose Money in or Money out instead of typing a minus sign.` };
+  return { c: toCents(n) };
+}
+
+/* ---------- Rendering ---------- */
+const VIEWS = {};
+function render() {
+  const sameTab = render._last === UI.tab;
+  render._last = UI.tab;
+  const y = window.scrollY;
+  for (const b of document.querySelectorAll('#tabs [data-tab]')) {
+    if (b.dataset.tab === UI.tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+  }
+  const syncBtn = $('#tabs [data-tab=settings]');
+  const needsBackup = DB.transactions.length + DB.accounts.length > 0 && (!DEV.lastExported || (DEV.lastChanged && DEV.lastChanged > DEV.lastExported));
+  syncBtn.innerHTML = 'Sync / Settings' + (needsBackup ? '<span class="dot" title="Changes since your last backup"></span>' : '');
+  $('#main').innerHTML = VIEWS[UI.tab]();
+  if (sameTab) window.scrollTo(0, y);
+}
+function go(tab) {
+  UI.tab = tab;
+  render();
+  window.scrollTo(0, 0);
+  const active = $(`#tabs [data-tab="${tab}"]`);
+  if (active && active.scrollIntoView) active.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+}
+
+/* ---------- Events ---------- */
+const ACTIONS = {};
+const BINDS = {};
+document.addEventListener('click', (e) => {
+  const tabBtn = e.target.closest('[data-tab]');
+  if (tabBtn) { e.preventDefault(); go(tabBtn.dataset.tab); return; }
+  const a = e.target.closest('[data-act]');
+  if (a && ACTIONS[a.dataset.act]) { e.preventDefault(); ACTIONS[a.dataset.act](a.dataset, a, e); }
+});
+function bindHandler(e, kind) {
+  const el = e.target.closest && e.target.closest('[data-bind]');
+  if (!el || !BINDS[el.dataset.bind]) return;
+  const isText = el.tagName === 'INPUT' && !['checkbox', 'date', 'radio'].includes(el.type);
+  if ((kind === 'input') !== isText) return;
+  BINDS[el.dataset.bind](el.type === 'checkbox' ? el.checked : el.value, el);
+}
+document.addEventListener('input', (e) => bindHandler(e, 'input'));
+document.addEventListener('change', (e) => bindHandler(e, 'change'));
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modalStack.length) closeModal(); });
+
+/* ---------- Files ---------- */
+function downloadFile(name, data, type) {
+  const blob = data instanceof Blob ? data : new Blob([data], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name; a.rel = 'noopener'; a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+function downloadPdf(name, bytes) { downloadFile(name, bytes, 'application/pdf'); toast('PDF downloaded: ' + name); }
+function pickFile(accept) {
+  return new Promise((resolve) => {
+    const inp = $('#filePicker');
+    inp.value = '';
+    inp.accept = accept;
+    inp.onchange = () => resolve(inp.files && inp.files[0] ? inp.files[0] : null);
+    inp.click();
+  });
+}
+
+/* =====================================================================
+   DASHBOARD
+   ===================================================================== */
+VIEWS.dashboard = function () {
+  const head = pageHead('Dashboard', btn('+ Account', 'newAccount', 'primary'));
+  if (!DB.accounts.length) {
+    return head + `<div class="card empty"><h2>Welcome to Dinero</h2>
+      <p class="muted">Your register starts empty. Add your first account, then record entries on the Register tab.</p>
+      ${btn('+ Add your first account', 'newAccount', 'primary')}
+      <p class="muted small">Moving data from another device or the earlier version? Go to <a href="#" data-tab="settings">Sync / Settings</a> to import a backup or an Excel workbook.</p></div>`;
+  }
+  const b = bal();
+  const active = DB.accounts.filter((a) => a.is_active);
+  const inactive = DB.accounts.filter((a) => !a.is_active);
+  const card = (a) => {
+    const x = b.byAcct.get(a.id);
+    return `<article class="card acct-card">
+      <div class="acct-top"><div><h3>${esc(a.name)}</h3><span class="muted small">${esc(a.type)}${a.is_active ? '' : ' · inactive'}</span></div>
+      <button type="button" class="icon-btn" data-act="editAccount" data-id="${esc(a.id)}" aria-label="Edit ${esc(a.name)}">✎</button></div>
+      <div class="big ${moneyCls(x.run)}">${fmt(x.run)}</div><div class="muted small">Running balance</div>
+      <dl class="mini"><div><dt>Cleared</dt><dd class="${moneyCls(x.clr)}">${fmt(x.clr)}</dd></div><div><dt>Pending</dt><dd>${fmt(x.run - x.clr)}</dd></div></dl>
+      ${btn('Open register →', 'openRegister', 'sm ghost', { id: a.id })}</article>`;
+  };
+  let tr = 0, tc = 0;
+  for (const a of active) { const x = b.byAcct.get(a.id); tr += x.run; tc += x.clr; }
+  const total = active.length > 1 ? `<article class="card acct-card total"><div class="acct-top"><div><h3>All active accounts</h3><span class="muted small">${plural(active.length, 'account')}</span></div></div>
+      <div class="big ${moneyCls(tr)}">${fmt(tr)}</div><div class="muted small">Combined running balance</div>
+      <dl class="mini"><div><dt>Cleared</dt><dd>${fmt(tc)}</dd></div><div><dt>Pending</dt><dd>${fmt(tr - tc)}</dd></div></dl></article>` : '';
+  return head + `<div class="grid">${active.map(card).join('')}${total}</div>
+    ${inactive.length ? `<details class="section"><summary>Inactive accounts (${inactive.length})</summary><div class="grid">${inactive.map(card).join('')}</div></details>` : ''}
+    <section class="section">${comingDue()}</section>`;
+};
+function comingDue() {
+  const td = today(), wk = addDays(td, 7);
+  const overdue = DB.bills.filter((x) => billStatus(x, td) === 'Past Due');
+  const odTotal = overdue.reduce((s, x) => s + toCents(x.amount), 0);
+  const items = [];
+  for (const x of DB.bills) {
+    if (x.status !== 'Paid' && x.due_date >= td && x.due_date <= wk) items.push({ date: x.due_date, html: `<span class="pill info">Bill</span> ${esc(x.payee)}`, amt: -toCents(x.amount), act: btn('Pay', 'payBill', 'sm', { id: x.id }) });
+  }
+  const ready = [];
+  for (const r of DB.recurring) {
+    if (r.status !== 'Active' || recurringEnded(r) || !isDate(r.next_due_date) || r.next_due_date > wk) continue;
+    const amt = (r.direction === 'In' ? 1 : -1) * toCents(r.amount);
+    const late = r.next_due_date < td;
+    if (!r.auto_post && r.next_due_date <= td) ready.push(r);
+    items.push({ date: r.next_due_date, html: `<span class="pill">Recurring</span> ${esc(r.payee)} ${late ? '<span class="pill bad">Overdue</span>' : r.next_due_date === td ? '<span class="pill warn">Due today</span>' : ''} ${r.auto_post ? '<span class="pill ok">Auto</span>' : ''}`, amt, act: r.auto_post ? '' : btn('Post', 'postRec', 'sm', { id: r.id }) });
+  }
+  items.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+  return `<div class="page-head"><h2>Coming due</h2><span class="muted small">Next 7 days</span></div>
+    ${overdue.length ? `<button type="button" class="alert-row" data-act="goPastDue"><span>${plural(overdue.length, 'bill')} past due · ${fmt(odTotal)}</span><span>View →</span></button>` : ''}
+    ${ready.length ? `<button type="button" class="alert-row info" data-tab="recurring"><span>${plural(ready.length, 'recurring entry', 'recurring entries')} ready to post</span><span>View →</span></button>` : ''}
+    <div class="card">${items.length ? `<ul class="due-list">${items.map((i) => `<li><span class="when">${i.date === td ? 'Today' : fmtDate(i.date)}</span><span class="what">${i.html}</span><span class="${moneyCls(i.amt)}">${fmt(i.amt)}</span>${i.act}</li>`).join('')}</ul>` : '<p class="muted">Nothing due in the next 7 days.</p>'}</div>`;
+}
+ACTIONS.goPastDue = () => { UI.bills.filter = 'pastdue'; go('bills'); };
+ACTIONS.openRegister = (d) => { UI.reg = { ...UI.reg, acct: d.id, cat: '', q: '', status: '' }; go('register'); };
+
+/* ---------- Account form ---------- */
+ACTIONS.newAccount = () => openAccountForm();
+ACTIONS.editAccount = (d) => openAccountForm(d.id);
+function openAccountForm(id) {
+  const a = id ? acctById(DB, id) : null;
+  const v = a || { name: '', type: 'Checking', opening_balance: 0, opening_date: today(), notes: '', is_active: true };
+  formModal({
+    title: a ? 'Edit account' : 'New account',
+    fields: `<div class="form-grid two">
+      <label class="field span2">Account name<input name="name" value="${esc(v.name)}" maxlength="80" required></label>
+      <label class="field">Type<select name="type">${ACCOUNT_TYPES.map((t) => `<option${t === v.type ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
+      <label class="field">Opening balance<input name="opening" inputmode="decimal" value="${a ? fixed2(toCents(v.opening_balance)) : ''}" placeholder="0.00"></label>
+      <label class="field">Opening date<input type="date" name="opening_date" value="${esc(v.opening_date)}"></label>
+      <label class="toggle span2"><input type="checkbox" name="is_active"${v.is_active ? ' checked' : ''}> Active (shown in pickers)</label>
+      <label class="field span2">Notes<textarea name="notes" rows="2">${esc(v.notes)}</textarea></label></div>
+      <p class="muted small">Opening balance is the balance before your first entry. For a credit card you owe money on, type it with a minus sign, like -250.00.</p>`,
+    extraButtons: a ? `<button type="button" class="btn danger-ghost" data-x="del">Delete</button>` : '',
+    onSubmit(form) {
+      const raw = String(fv(form, 'opening')).trim();
+      const openingC = raw === '' ? 0 : toCents(raw);
+      const res = saveAccount(DB, { id, name: fv(form, 'name'), type: fv(form, 'type'), openingC, opening_date: fv(form, 'opening_date'), notes: fv(form, 'notes'), is_active: fv(form, 'is_active') });
+      if (res.error) return res.error;
+      commit(a ? 'Account saved' : `Account "${res.account.name}" added`);
+    },
+    after(form, m) {
+      const del = m.querySelector('[data-x=del]');
+      if (del) del.onclick = async () => {
+        if (accountUsage(DB, id)) { m.querySelector('.form-error').textContent = deleteAccount(DB, id).error; return; }
+        if (await confirmBox({ title: 'Delete account?', body: `Delete <b>${esc(a.name)}</b>? It has no entries.`, ok: 'Delete', danger: true })) {
+          deleteAccount(DB, id); closeModal(m, true); commit('Account deleted');
+        }
+      };
+    },
+  });
+}
+
+/* =====================================================================
+   REGISTER
+   ===================================================================== */
+VIEWS.register = function () {
+  if (!DB.accounts.length) return pageHead('Register') + `<div class="card empty"><p class="muted">Add an account first.</p>${btn('+ Add account', 'newAccount', 'primary')}</div>`;
+  const f = UI.reg;
+  const filtered = f.cat || f.q || f.status || f.acct;
+  return pageHead('Register', btn('+ Entry', 'newTxn', 'primary') + btn('+ Transfer', 'newTransfer')) +
+    `<div class="toolbar">
+      <label class="field">Account<select data-bind="regAcct"><option value="">All accounts</option>${acctOptions(f.acct, { includeInactive: true })}</select></label>
+      <label class="field">Category<select data-bind="regCat">${catOptions(f.cat, { blank: 'All categories', extras: [['__none__', 'Uncategorized'], ['__transfer__', 'Transfers']] })}</select></label>
+      <label class="field">Status<select data-bind="regStatus"><option value="">All</option><option value="cleared"${f.status === 'cleared' ? ' selected' : ''}>Cleared</option><option value="pending"${f.status === 'pending' ? ' selected' : ''}>Pending</option></select></label>
+      <label class="field wide">Search<input type="search" data-bind="regQ" value="${esc(f.q)}" placeholder="Payee, memo, category, check #, amount"></label>
+      <div class="btn-row wide">${btn('Clear filters', 'regClear', 'sm' + (filtered ? '' : ' hidden'))}
+        <label class="toggle small"><input type="checkbox" data-bind="regNewest"${f.newest ? ' checked' : ''}> Newest first</label></div>
+    </div>
+    <div id="regSummary">${regSummary()}</div>
+    <div id="regList">${registerList()}</div>`;
+};
+function regSummary() {
+  const f = UI.reg;
+  if (!f.acct) return '';
+  const a = acctById(DB, f.acct), x = bal().byAcct.get(f.acct);
+  if (!a || !x) return '';
+  return `<div class="stats three">
+    <div class="stat"><div class="label">${esc(a.name)} balance</div><div class="value ${moneyCls(x.run)}">${fmt(x.run)}</div></div>
+    <div class="stat"><div class="label">Cleared</div><div class="value ${moneyCls(x.clr)}">${fmt(x.clr)}</div></div>
+    <div class="stat"><div class="label">Pending</div><div class="value">${fmt(x.run - x.clr)}</div></div></div>`;
+}
+function txnTags(t) {
+  let s = '';
+  if (t.transfer_id) s += ' <span class="pill info">Transfer</span>';
+  if (t.bill_id) s += ' <span class="pill">Bill</span>';
+  if (t.auto_posted_on) s += ` <span class="pill ok" title="Posted automatically on ${esc(fmtDate(t.auto_posted_on))}">Auto-posted</span>`;
+  return s;
+}
+// Renders register-style rows (used by Register and Reports).
+function txnTable(rows, { showAcct = true, opening = null, footer = '' } = {}) {
+  const b = bal();
+  const head = `<thead><tr><th>Date</th>${showAcct ? '<th>Account</th>' : ''}<th>Payee / Memo</th><th>Category</th><th>Check #</th><th class="r">In</th><th class="r">Out</th><th>Status</th><th class="r">Balance</th><th class="r">Cleared bal.</th></tr></thead>`;
+  const cols = showAcct ? 10 : 9;
+  let body = '';
+  if (opening) {
+    body += `<tr class="opening"><td class="c-date">${esc(fmtDate(opening.date))}</td><td class="c-payee">Opening balance</td><td class="c-amt ${moneyCls(opening.c)}">${fmt(opening.c)}</td>
+      <td class="c-cat"></td><td class="c-chk"></td><td class="c-in"></td><td class="c-out"></td><td class="c-status"></td><td class="c-bal r ${moneyCls(opening.c)}">${fmt(opening.c)}</td><td class="c-clr r ${moneyCls(opening.c)}">${fmt(opening.c)}</td></tr>`;
+  }
+  for (const t of rows) {
+    const c = toCents(t.amount);
+    const rb = b.row.get(t.id) || { run: 0, clr: 0 };
+    const an = acctName(DB, t.account_id);
+    const meta = [fmtDate(t.date), showAcct ? an : '', t.category, t.check_number ? '#' + t.check_number : ''].filter(Boolean).map(esc).join(' · ');
+    body += `<tr data-act="editTxn" data-id="${esc(t.id)}">
+      <td class="c-date num">${esc(fmtDate(t.date))}</td>
+      ${showAcct ? `<td class="c-acct">${esc(an)}</td>` : ''}
+      <td class="c-payee">${esc(t.payee || '(no payee)')}${txnTags(t)}${t.description ? `<div class="sub">${esc(t.description)}</div>` : ''}</td>
+      <td class="c-amt ${c > 0 ? 'money in' : 'money'}">${c > 0 ? '+' + fmt(c) : fmt(c)}</td>
+      <td class="c-meta">${meta}</td>
+      <td class="c-cat">${esc(t.category)}</td>
+      <td class="c-chk">${esc(t.check_number)}</td>
+      <td class="c-in r money in">${c > 0 ? fmt(c) : ''}</td>
+      <td class="c-out r money">${c < 0 ? fmt(-c) : ''}</td>
+      <td class="c-status"><button type="button" class="pill ${t.cleared ? 'ok' : 'warn'}" data-act="toggleCleared" data-id="${esc(t.id)}" title="Tap to switch between Cleared and Pending">${t.cleared ? 'Cleared' : 'Pending'}</button></td>
+      <td class="c-bal r ${moneyCls(rb.run)}">${fmt(rb.run)}<span class="clr-inline"> · cleared ${fmt(rb.clr)}</span></td>
+      <td class="c-clr r ${moneyCls(rb.clr)}">${fmt(rb.clr)}</td></tr>`;
+  }
+  if (!rows.length && !opening) body = `<tr><td colspan="${cols}" class="muted" style="text-align:center;padding:24px">No entries match.</td></tr>`;
+  return `<div class="table-wrap"><table class="tbl reg">${head}<tbody>${body}</tbody></table>${footer}</div>`;
+}
+function registerList() {
+  const f = UI.reg;
+  let rows = filterTxns(DB, { acct: f.acct, cat: f.cat, q: f.q, status: f.status });
+  const totalCount = f.acct ? DB.transactions.filter((t) => t.account_id === f.acct).length : DB.transactions.length;
+  let footer = '';
+  let hiddenCount = 0;
+  if (rows.length > f.limit) { hiddenCount = rows.length - f.limit; rows = rows.slice(rows.length - f.limit); }
+  if (f.newest) rows = rows.slice().reverse();
+  const a = f.acct ? acctById(DB, f.acct) : null;
+  const opening = a && !hiddenCount && !f.cat && !f.q && !f.status && !f.newest ? { date: a.opening_date, c: toCents(a.opening_balance) } : null;
+  if (hiddenCount) footer = `<div class="list-foot">${btn(`Show ${plural(hiddenCount, 'earlier entry', 'earlier entries')}`, 'regMore', 'sm')}</div>`;
+  const shown = rows.length;
+  return `<p class="muted small">Showing ${shown} of ${plural(totalCount, 'entry', 'entries')}. Balances on each row are the account's true running and cleared balances after that entry.</p>` + txnTable(rows, { showAcct: !f.acct, opening, footer });
+}
+function refreshRegList() {
+  const l = $('#regList'); if (l) l.innerHTML = registerList();
+  const c = document.querySelector('[data-act=regClear]');
+  if (c) c.classList.toggle('hidden', !(UI.reg.cat || UI.reg.q || UI.reg.status || UI.reg.acct));
+}
+BINDS.regAcct = (v) => { UI.reg.acct = v; render(); };
+BINDS.regCat = (v) => { UI.reg.cat = v; refreshRegList(); };
+BINDS.regStatus = (v) => { UI.reg.status = v; refreshRegList(); };
+BINDS.regQ = (v) => { UI.reg.q = v; refreshRegList(); };
+BINDS.regNewest = (v) => { UI.reg.newest = v; refreshRegList(); };
+ACTIONS.regClear = () => { UI.reg = { ...UI.reg, acct: '', cat: '', q: '', status: '' }; render(); };
+ACTIONS.regMore = () => { UI.reg.limit += 1000; refreshRegList(); };
+ACTIONS.toggleCleared = (d) => {
+  const t = DB.transactions.find((x) => x.id === d.id);
+  if (!t) return;
+  t.cleared = !t.cleared;
+  commit();
+};
+ACTIONS.newTxn = () => openTxnForm(null);
+ACTIONS.editTxn = (d) => openTxnForm(d.id);
+
+/* ---------- Entry form ---------- */
+function openTxnForm(id) {
+  const t = id ? DB.transactions.find((x) => x.id === id) : null;
+  if (t && t.transfer_id) return openTransferForm(t.transfer_id);
+  const dflAcct = UI.reg.acct && acctById(DB, UI.reg.acct)?.is_active ? UI.reg.acct : (DB.accounts.find((a) => a.is_active) || {}).id || '';
+  const v = t || { date: today(), account_id: dflAcct, payee: '', description: '', category: '', check_number: '', amount: 0, cleared: false };
+  const c = toCents(v.amount);
+  const isIn = t ? c > 0 : false;
+  const bill = t && t.bill_id ? DB.bills.find((b) => b.id === t.bill_id) : null;
+  const rec = t && t.recurring_id ? DB.recurring.find((r) => r.id === t.recurring_id) : null;
+  let history = '';
+  if (t && t.auto_posted_on) history += `<div class="note">Posted automatically on ${esc(fmtDate(t.auto_posted_on))} by the auto-post check${rec ? ` (recurring: ${esc(rec.payee)})` : ''}. It is dated on its due date.</div>`;
+  else if (rec) history += `<div class="note">Posted from the recurring entry "${esc(rec.payee)}".</div>`;
+  if (bill) history += `<div class="note">This entry pays the bill "${esc(bill.payee)}". Deleting it marks that bill Unpaid again.</div>`;
+  formModal({
+    title: t ? 'Edit entry' : 'New entry',
+    fields: `${history}<div class="form-grid two" style="margin-top:${history ? 12 : 0}px">
+      <div class="field span2"><span>Money</span><div class="seg" role="radiogroup" aria-label="Money in or out">
+        <label><input type="radio" name="dir" value="out"${isIn ? '' : ' checked'}><span>Money out</span></label>
+        <label><input type="radio" name="dir" value="in"${isIn ? ' checked' : ''}><span>Money in</span></label></div></div>
+      <label class="field">Amount<input name="amount" inputmode="decimal" value="${t ? fixed2(Math.abs(c)) : ''}" placeholder="0.00"></label>
+      <label class="field">Date<input type="date" name="date" value="${esc(v.date)}"></label>
+      <label class="field">Account<select name="account_id">${acctOptions(v.account_id, { blank: DB.accounts.length > 1 ? 'Choose…' : '' })}</select></label>
+      <label class="field">Payee<input name="payee" list="payeeList" value="${esc(v.payee)}" maxlength="120"></label>
+      <label class="field">Category<select name="category">${catOptions(v.category)}</select></label>
+      <label class="field">Check #<input name="check_number" inputmode="numeric" value="${esc(v.check_number)}" maxlength="20"></label>
+      <label class="field span2">Description / memo<input name="description" value="${esc(v.description)}" maxlength="200"></label>
+      <label class="toggle span2"><input type="checkbox" name="cleared"${v.cleared ? ' checked' : ''}> Cleared (off = Pending)</label>
+    </div>${payeeDatalist()}`,
+    extraButtons: t ? `<button type="button" class="btn danger-ghost" data-x="del">Delete</button>` : '',
+    onSubmit(form) {
+      const amt = amountField(form, 'amount', 'Amount');
+      if (amt.error) return amt.error;
+      if (!fv(form, 'date')) return 'Date: enter the date of the entry.';
+      if (!fv(form, 'account_id')) return 'Account: choose an account.';
+      const res = saveTxn(DB, { id, date: fv(form, 'date'), account_id: fv(form, 'account_id'), payee: fv(form, 'payee'), description: fv(form, 'description'), category: fv(form, 'category'), check_number: fv(form, 'check_number'), amountC: radioVal(form, 'dir') === 'in' ? amt.c : -amt.c, cleared: fv(form, 'cleared') });
+      if (res.error) return res.error;
+      if (bill && bill.linked_transaction_id === res.txn.id && res.txn.date !== bill.paid_date) bill.paid_date = res.txn.date;
+      commit(t ? 'Entry saved' : 'Entry added');
+    },
+    after(form, m) {
+      const payee = form.elements.payee;
+      if (!t) payee.addEventListener('change', () => {
+        if (!form.elements.category.value) { const c2 = lastCategoryForPayee(DB, payee.value); if (c2) form.elements.category.value = c2; }
+      });
+      const del = m.querySelector('[data-x=del]');
+      if (del) del.onclick = async () => {
+        if (await confirmBox({ title: 'Delete entry?', body: `Delete <b>${esc(t.payee || 'this entry')}</b> for ${fmt(Math.abs(c))} on ${esc(fmtDate(t.date))}?${bill ? ' The bill it paid will be marked Unpaid.' : ''}`, ok: 'Delete', danger: true })) {
+          deleteTxn(DB, id); closeModal(m, true); commit('Entry deleted');
+        }
+      };
+    },
+  });
+}
+
+/* =====================================================================
+   TRANSFERS
+   ===================================================================== */
+VIEWS.transfers = function () {
+  const head = pageHead('Transfers', DB.accounts.length > 1 ? btn('+ Transfer', 'newTransfer', 'primary') : '');
+  if (DB.accounts.length < 2) return head + `<div class="card empty"><p class="muted">Transfers move money between two of your accounts. Add at least two accounts first.</p>${btn('+ Add account', 'newAccount', 'primary')}</div>`;
+  const list = [...DB.transfers].sort((a, b) => (a.date > b.date ? -1 : a.date < b.date ? 1 : a.id < b.id ? 1 : -1));
+  if (!list.length) return head + `<div class="card empty"><p class="muted">No transfers yet. A transfer creates two linked register entries: money out of one account and the same amount into another.</p>${btn('+ New transfer', 'newTransfer', 'primary')}</div>`;
+  return head + `<div class="rows">${list.map((x) => {
+    const s = transferSides(DB, x.id);
+    const ok = s.from && s.to;
+    return `<div class="row-item"><div><div class="title">${esc(acctName(DB, x.from_account_id))} → ${esc(acctName(DB, x.to_account_id))}</div>
+      <div class="meta">${esc(fmtDate(x.date))}${x.description ? ' · ' + esc(x.description) : ''}</div>
+      <div class="pills">${ok ? `<span class="pill ${s.from.cleared ? 'ok' : 'warn'}">${s.from.cleared ? 'Cleared' : 'Pending'}</span>` : '<span class="pill bad">Needs repair — open and save</span>'}</div></div>
+      <div class="amount">${fmt(toCents(x.amount))}</div>
+      <div class="row-actions">${btn('Edit', 'editTransfer', 'sm', { id: x.id })}${btn('Delete', 'delTransfer', 'sm danger-ghost', { id: x.id })}</div></div>`;
+  }).join('')}</div>`;
+};
+ACTIONS.newTransfer = () => {
+  if (DB.accounts.filter((a) => a.is_active).length < 2) { toast('Add a second account first — a transfer needs two accounts.', true); return; }
+  openTransferForm(null);
+};
+ACTIONS.editTransfer = (d) => openTransferForm(d.id);
+ACTIONS.delTransfer = async (d) => {
+  const x = DB.transfers.find((t) => t.id === d.id);
+  if (!x) return;
+  if (await confirmBox({ title: 'Delete transfer?', body: `Delete the ${fmt(toCents(x.amount))} transfer from <b>${esc(acctName(DB, x.from_account_id))}</b> to <b>${esc(acctName(DB, x.to_account_id))}</b>? Both register entries are removed.`, ok: 'Delete', danger: true })) {
+    deleteTransfer(DB, x.id); commit('Transfer deleted');
+  }
+};
+function openTransferForm(id) {
+  const x = id ? DB.transfers.find((t) => t.id === id) : null;
+  const sides = x ? transferSides(DB, x.id) : null;
+  const act = DB.accounts.filter((a) => a.is_active);
+  const v = x || { date: today(), from_account_id: UI.reg.acct || act[0]?.id || '', to_account_id: '', amount: 0, description: '' };
+  if (!x && (!v.to_account_id || v.to_account_id === v.from_account_id)) v.to_account_id = (act.find((a) => a.id !== v.from_account_id) || {}).id || '';
+  const cleared = sides && sides.from ? sides.from.cleared : false;
+  formModal({
+    title: x ? 'Edit transfer' : 'New transfer',
+    fields: `<div class="form-grid two">
+      <div class="swap-row span2">
+        <label class="field">From account<select name="from">${acctOptions(v.from_account_id, { blank: 'Choose…' })}</select></label>
+        <button type="button" class="icon-btn" data-x="swap" aria-label="Swap From and To" title="Swap From and To">⇄</button>
+        <label class="field">To account<select name="to">${acctOptions(v.to_account_id, { blank: 'Choose…' })}</select></label>
+      </div>
+      <label class="field">Amount<input name="amount" inputmode="decimal" value="${x ? fixed2(toCents(x.amount)) : ''}" placeholder="0.00"></label>
+      <label class="field">Date<input type="date" name="date" value="${esc(v.date)}"></label>
+      <label class="field span2">Description<input name="description" value="${esc(v.description)}" maxlength="200"></label>
+      <label class="toggle span2"><input type="checkbox" name="cleared"${cleared ? ' checked' : ''}> Cleared (applies to both sides)</label></div>
+      <p class="muted small">Saving updates both linked register entries together: money out of From, the same amount into To.</p>`,
+    extraButtons: x ? `<button type="button" class="btn danger-ghost" data-x="del">Delete</button>` : '',
+    onSubmit(form) {
+      const amt = amountField(form, 'amount', 'Amount');
+      if (amt.error) return amt.error;
+      if (!fv(form, 'from')) return 'From account: choose the account the money leaves.';
+      if (!fv(form, 'to')) return 'To account: choose the account the money arrives in.';
+      const res = saveTransfer(DB, { id, date: fv(form, 'date'), from_account_id: fv(form, 'from'), to_account_id: fv(form, 'to'), amountC: amt.c, description: fv(form, 'description'), cleared: fv(form, 'cleared') });
+      if (res.error) return res.error;
+      commit(x ? 'Transfer saved' : 'Transfer added');
+    },
+    after(form, m) {
+      m.querySelector('[data-x=swap]').onclick = () => { const a = form.elements.from.value; form.elements.from.value = form.elements.to.value; form.elements.to.value = a; };
+      const del = m.querySelector('[data-x=del]');
+      if (del) del.onclick = async () => { closeModal(m, true); await ACTIONS.delTransfer({ id }); };
+    },
+  });
+}
+
+// ---- ui2.js ----
+'use strict';
+/* ===== UI: Categories, Recurring, Bills, Reports, Sync / Settings, PDFs, startup ===== */
+
+/* =====================================================================
+   CATEGORIES
+   ===================================================================== */
+function summaryTable(sum, emptyText) {
+  if (!sum.rows.length) return `<div class="card"><p class="muted">${esc(emptyText)}</p></div>`;
+  return `<div class="table-wrap"><table class="tbl"><thead><tr><th>Category</th><th class="r">Money in</th><th class="r">Money out</th><th class="r">Net</th><th class="r">Count</th></tr></thead><tbody>
+    ${sum.rows.map((r) => `<tr class="${r.depth ? 'child' : 'parent'}"><td>${esc(r.depth ? r.name : r.name)}</td><td class="r money in">${r.inC ? fmt(r.inC) : ''}</td><td class="r money">${r.outC ? fmt(r.outC) : ''}</td><td class="r ${moneyCls(r.net)}">${fmt(r.net)}</td><td class="r num">${r.count}</td></tr>`).join('')}
+    <tr class="total"><td>Total (transfers not included)</td><td class="r money">${fmt(sum.totals.inC)}</td><td class="r money">${fmt(sum.totals.outC)}</td><td class="r ${moneyCls(sum.totals.net)}">${fmt(sum.totals.net)}</td><td class="r num">${sum.totals.count}</td></tr>
+    </tbody></table></div><p class="muted small">Parent totals include their subcategories.</p>`;
+}
+function catSummaryScope() {
+  if (UI.cats.mode === 'all') return { label: 'All time', txns: DB.transactions };
+  const m = UI.cats.month;
+  return { label: fmtMonth(m), txns: DB.transactions.filter((t) => t.date.slice(0, 7) === m) };
+}
+VIEWS.categories = function () {
+  const tree = catTree(DB);
+  const head = pageHead('Categories', btn('+ Category', 'newCat', 'primary') + (tree.length ? btn('Download categories PDF', 'pdfCats') : ''));
+  const list = tree.length ? `<div class="rows">${tree.map(({ cat, path, depth, orphan }) => {
+    const used = categoryUsage(DB, path);
+    return `<div class="row-item${depth ? ' child' : ''}"><div><div class="title">${esc(depth ? cat.name : cat.name)}${orphan ? ' <span class="pill bad">parent missing</span>' : ''}</div>
+      <div class="meta">${esc(cat.kind)}${used ? ' · used ' + plural(used, 'time') : ''}${depth ? ' · ' + esc(path) : ''}</div></div><div></div>
+      <div class="row-actions">${!depth ? btn('+ Subcategory', 'newSubCat', 'sm', { id: cat.id }) : ''}${btn('Edit', 'editCat', 'sm', { id: cat.id })}${btn('Delete', 'delCat', 'sm danger-ghost', { id: cat.id })}</div></div>`;
+  }).join('')}</div>` : `<div class="card empty"><p class="muted">No categories yet. Add top-level categories like "Food", then subcategories like "Food > Groceries".</p>${btn('+ Add category', 'newCat', 'primary')}</div>`;
+  const months = new Set([today().slice(0, 7), UI.cats.month]);
+  for (const t of DB.transactions) if (isDate(t.date)) months.add(t.date.slice(0, 7));
+  const scope = catSummaryScope();
+  const sum = categorySummary(DB, scope.txns);
+  return head + list + `<section class="section"><div class="page-head"><h2>Category summary</h2><div class="actions">${btn('Summary PDF', 'pdfCatSummary', 'sm')}</div></div>
+    <div class="btn-row" style="margin-bottom:12px;align-items:end">
+      <div class="seg" role="radiogroup" aria-label="Summary period">
+        <label><input type="radio" name="catmode" value="month" data-bind="catMode"${UI.cats.mode === 'month' ? ' checked' : ''}><span>Month</span></label>
+        <label><input type="radio" name="catmode" value="all" data-bind="catMode"${UI.cats.mode === 'all' ? ' checked' : ''}><span>All time</span></label></div>
+      ${UI.cats.mode === 'month' ? `<label class="field" style="min-width:190px">Month<select data-bind="catMonth">${[...months].sort().reverse().map((m) => `<option value="${m}"${m === UI.cats.month ? ' selected' : ''}>${fmtMonth(m)}</option>`).join('')}</select></label>` : ''}
+    </div>${summaryTable(sum, `No entries in ${scope.label}.`)}</section>`;
+};
+BINDS.catMode = (v) => { UI.cats.mode = v; render(); };
+BINDS.catMonth = (v) => { UI.cats.month = v; render(); };
+ACTIONS.newCat = () => openCatForm(null, '');
+ACTIONS.newSubCat = (d) => openCatForm(null, (DB.categories.find((c) => c.id === d.id) || {}).name || '');
+ACTIONS.editCat = (d) => openCatForm(d.id);
+function openCatForm(id, parent) {
+  const c = id ? DB.categories.find((x) => x.id === id) : null;
+  const v = c || { name: '', parent_name: parent || '', kind: (DB.categories.find((x) => x.name === parent) || {}).kind || 'Expense' };
+  const tops = DB.categories.filter((x) => !x.parent_name && (!c || x.id !== c.id)).sort((a, b) => a.name.localeCompare(b.name));
+  formModal({
+    title: c ? 'Edit category' : parent ? 'New subcategory' : 'New category',
+    fields: `<div class="form-grid">
+      <label class="field">Name<input name="name" value="${esc(v.name)}" maxlength="60"></label>
+      <label class="field">Parent<select name="parent"><option value="">None — top-level category</option>${tops.map((t) => `<option${norm(t.name) === norm(v.parent_name) ? ' selected' : ''}>${esc(t.name)}</option>`).join('')}</select></label>
+      <label class="field">Kind<select name="kind">${CAT_KINDS.map((k) => `<option${k === v.kind ? ' selected' : ''}>${k}</option>`).join('')}</select></label></div>
+      ${c ? '<p class="muted small">Renaming updates every entry, recurring item, and bill that uses this category.</p>' : ''}`,
+    onSubmit(form) {
+      const res = saveCategory(DB, { id, name: fv(form, 'name'), parent_name: fv(form, 'parent'), kind: fv(form, 'kind') });
+      if (res.error) return res.error;
+      commit(c ? 'Category saved' : `Added "${catPath(res.category)}"`);
+    },
+  });
+}
+ACTIONS.delCat = (d) => {
+  const c = DB.categories.find((x) => x.id === d.id);
+  if (!c) return;
+  const path = catPath(c);
+  if (!c.parent_name && DB.categories.some((x) => norm(x.parent_name) === norm(c.name))) {
+    toast(`"${c.name}" has subcategories. Delete or move its subcategories first.`, true);
+    return;
+  }
+  const used = categoryUsage(DB, path);
+  if (!used) {
+    confirmBox({ title: 'Delete category?', body: `Delete <b>${esc(path)}</b>? Nothing uses it.`, ok: 'Delete', danger: true }).then((ok) => { if (ok) { deleteCategory(DB, c.id, ''); commit('Category deleted'); } });
+    return;
+  }
+  formModal({
+    title: 'Delete category',
+    submit: 'Move entries and delete',
+    fields: `<div class="note warn"><b>${esc(path)}</b> is used by ${plural(used, 'entry, recurring item, or bill', 'entries, recurring items, and bills')}. Nothing will be deleted from your register — choose the category they should move to.</div>
+      <label class="field" style="margin-top:12px">Move them to<select name="rep">${catOptions('', { blank: '— No category —' }).replace(`<option value="${esc(path)}">`, `<option value="${esc(path)}" disabled>`)}</select></label>`,
+    onSubmit(form) {
+      const res = deleteCategory(DB, c.id, fv(form, 'rep'));
+      if (res.error) return res.error;
+      commit(`Deleted "${path}" and moved its ${plural(used, 'use')}`);
+    },
+  });
+};
+
+/* =====================================================================
+   RECURRING
+   ===================================================================== */
+VIEWS.recurring = function () {
+  const head = pageHead('Recurring', btn('+ Recurring', 'newRec', 'primary') + btn('Run auto-post check now', 'autoCheck') + (DB.recurring.length ? btn('PDF', 'pdfRec') : ''));
+  const note = `<div class="note" style="margin-bottom:12px">Auto-post runs when you open Dinero (and every hour while it stays open). Nothing posts while the app is closed — an entry set to post early appears the first time you open the app on or after that day, still dated on its due date.</div>`;
+  if (!DB.accounts.length) return head + `<div class="card empty"><p class="muted">Add an account first.</p></div>`;
+  if (!DB.recurring.length) return head + note + `<div class="card empty"><p class="muted">No recurring entries yet — add paychecks, rent, subscriptions, and other repeating money in or out.</p>${btn('+ Add recurring entry', 'newRec', 'primary')}</div>`;
+  const td = today();
+  const list = [...DB.recurring].sort((a, b) => (recurringEnded(a) - recurringEnded(b)) || (a.next_due_date < b.next_due_date ? -1 : a.next_due_date > b.next_due_date ? 1 : 0));
+  return head + note + `<div class="rows">${list.map((r) => {
+    const ended = recurringEnded(r);
+    const active = r.status === 'Active' && !ended;
+    const due = r.next_due_date;
+    const isToday = active && due === td, late = active && due < td;
+    const pills = [];
+    if (ended) pills.push('<span class="pill">Ended</span>');
+    else if (r.status === 'Paused') pills.push('<span class="pill">Paused</span>');
+    if (late) pills.push('<span class="pill bad">Overdue</span>');
+    if (isToday) pills.push('<span class="pill warn">Due today</span>');
+    if (r.auto_post && !ended) pills.push(`<span class="pill ok">Auto-posts ${r.days_in_advance ? plural(r.days_in_advance, 'day') + ' early' : 'on the due date'} · on ${esc(fmtDate(autoPostDate(r)))}</span>`);
+    const c = (r.direction === 'In' ? 1 : -1) * toCents(r.amount);
+    return `<div class="row-item${late ? ' past-due' : isToday ? ' due-today' : ''}"><div><div class="title">${esc(r.payee)}</div>
+      <div class="meta">${esc(r.frequency)} · ${esc(acctName(DB, r.account_id))}${r.category ? ' · ' + esc(r.category) : ''}</div>
+      <div class="meta">${ended ? 'Ended ' + esc(fmtDate(r.end_date)) : 'Next due ' + esc(fmtDate(due))}${r.end_date && !ended ? ' · ends ' + esc(fmtDate(r.end_date)) : ''}</div>
+      <div class="pills">${pills.join('')}</div></div>
+      <div class="amount ${c > 0 ? 'in' : ''}">${c > 0 ? '+' : ''}${fmt(c)}</div>
+      <div class="row-actions">${active ? btn('Post', 'postRec', 'sm primary', { id: r.id }) + btn('Skip', 'skipRec', 'sm', { id: r.id }) : ''}
+        ${!ended ? btn(r.status === 'Paused' ? 'Resume' : 'Pause', 'pauseRec', 'sm', { id: r.id }) : ''}${btn('Edit', 'editRec', 'sm', { id: r.id })}${btn('Delete', 'delRec', 'sm danger-ghost', { id: r.id })}</div></div>`;
+  }).join('')}</div>`;
+};
+ACTIONS.newRec = () => openRecForm(null);
+ACTIONS.editRec = (d) => openRecForm(d.id);
+ACTIONS.postRec = async (d) => {
+  const r = DB.recurring.find((x) => x.id === d.id);
+  if (!r) return;
+  const res = postRecurring(DB, r);
+  if (res.error) { toast(res.error, true); return; }
+  commit(`Posted ${r.payee} for ${fmtDate(res.txn.date)}. Next due ${fmtDate(r.next_due_date)}${recurringEnded(r) ? ' — past its end date, so it has ended' : ''}.`);
+};
+ACTIONS.skipRec = async (d) => {
+  const r = DB.recurring.find((x) => x.id === d.id);
+  if (!r) return;
+  if (!(await confirmBox({ title: 'Skip this one?', body: `Skip <b>${esc(r.payee)}</b> due ${esc(fmtDate(r.next_due_date))} without adding a register entry?`, ok: 'Skip' }))) return;
+  skipRecurring(r);
+  commit(`Skipped. Next due ${fmtDate(r.next_due_date)}.`);
+};
+ACTIONS.pauseRec = (d) => {
+  const r = DB.recurring.find((x) => x.id === d.id);
+  if (!r) return;
+  r.status = r.status === 'Paused' ? 'Active' : 'Paused';
+  commit(r.status === 'Paused' ? 'Paused' : 'Resumed');
+};
+ACTIONS.delRec = async (d) => {
+  const r = DB.recurring.find((x) => x.id === d.id);
+  if (r && await confirmBox({ title: 'Delete recurring entry?', body: `Delete <b>${esc(r.payee)}</b>? Entries it already posted stay in the register.`, ok: 'Delete', danger: true })) {
+    DB.recurring = DB.recurring.filter((x) => x.id !== r.id);
+    commit('Recurring entry deleted');
+  }
+};
+function openRecForm(id) {
+  const r = id ? DB.recurring.find((x) => x.id === id) : null;
+  const v = r || { payee: '', direction: 'Out', amount: 0, account_id: (DB.accounts.find((a) => a.is_active) || {}).id || '', category: '', frequency: 'Monthly', start_date: today(), next_due_date: '', end_date: '', auto_post: false, days_in_advance: 0, status: 'Active', memo: '' };
+  formModal({
+    title: r ? 'Edit recurring entry' : 'New recurring entry',
+    fields: `<div class="form-grid two">
+      <label class="field span2">Payee<input name="payee" list="payeeList" value="${esc(v.payee)}" maxlength="120"></label>
+      <div class="field"><span>Direction</span><div class="seg"><label><input type="radio" name="dir" value="Out"${v.direction === 'Out' ? ' checked' : ''}><span>Out</span></label><label><input type="radio" name="dir" value="In"${v.direction === 'In' ? ' checked' : ''}><span>In</span></label></div></div>
+      <label class="field">Amount<input name="amount" inputmode="decimal" value="${r ? fixed2(toCents(v.amount)) : ''}" placeholder="0.00"></label>
+      <label class="field">Account<select name="account_id">${acctOptions(v.account_id, { blank: 'Choose…' })}</select></label>
+      <label class="field">Category<select name="category">${catOptions(v.category)}</select></label>
+      <label class="field">Frequency<select name="frequency">${freqOptions(v.frequency)}</select></label>
+      <label class="field">Status<select name="status"><option${v.status === 'Active' ? ' selected' : ''}>Active</option><option${v.status === 'Paused' ? ' selected' : ''}>Paused</option></select></label>
+      <label class="field">Start date<input type="date" name="start_date" value="${esc(v.start_date)}"></label>
+      <label class="field">Next due date<input type="date" name="next_due_date" value="${esc(v.next_due_date)}"></label>
+      <label class="field">End date (optional)<input type="date" name="end_date" value="${esc(v.end_date)}"></label>
+      <label class="field">Days in advance (0–90)<input name="days" inputmode="numeric" value="${v.days_in_advance}"></label>
+      <label class="toggle span2"><input type="checkbox" name="auto_post"${v.auto_post ? ' checked' : ''}> Post automatically</label>
+      <label class="field span2">Memo<input name="memo" value="${esc(v.memo)}" maxlength="200"></label></div>
+      <p class="muted small">Leave "Next due date" blank to use the start date. With "Post automatically" on, the entry posts itself when you open the app on or after (due date − days in advance), dated on the due date. 0 days means on the due date itself.</p>${payeeDatalist()}`,
+    onSubmit(form) {
+      const amt = amountField(form, 'amount', 'Amount');
+      if (amt.error) return amt.error;
+      const daysRaw = String(fv(form, 'days')).trim();
+      const days = daysRaw === '' ? 0 : Number(daysRaw);
+      const res = saveRecurring(DB, { id, payee: fv(form, 'payee'), direction: radioVal(form, 'dir'), amountC: amt.c, account_id: fv(form, 'account_id'), category: fv(form, 'category'), frequency: fv(form, 'frequency'), start_date: fv(form, 'start_date'), next_due_date: fv(form, 'next_due_date'), end_date: fv(form, 'end_date'), auto_post: fv(form, 'auto_post'), days_in_advance: days, status: fv(form, 'status') });
+      if (res.error) return res.error;
+      const posted = runAutoPost(DB, today());
+      commit((r ? 'Recurring entry saved' : 'Recurring entry added') + (posted.length ? ` — auto-posted ${plural(posted.length, 'entry', 'entries')}` : ''));
+    },
+  });
+}
+
+/* =====================================================================
+   BILLS
+   ===================================================================== */
+VIEWS.bills = function () {
+  const td = today();
+  const head = pageHead('Bills', btn('+ Bill', 'newBill', 'primary') + (DB.bills.length ? btn('Open bills PDF', 'pdfBills') : ''));
+  const unpaid = DB.bills.filter((b) => b.status !== 'Paid');
+  const past = unpaid.filter((b) => billStatus(b, td) === 'Past Due');
+  const paid = DB.bills.filter((b) => b.status === 'Paid');
+  const sum = (l) => l.reduce((s, b) => s + toCents(b.amount), 0);
+  const f = UI.bills.filter;
+  const stat = (key, label, l, cls = '') => `<button type="button" class="stat ${cls}" data-act="billFilter" data-f="${key}" aria-pressed="${f === key}"><div class="label">${label}</div><div class="value">${fmt(sum(l))}</div><div class="sub">${plural(l.length, 'bill')}</div></button>`;
+  let list = f === 'unpaid' ? unpaid : f === 'pastdue' ? past : f === 'paid' ? paid : DB.bills;
+  list = [...list].sort((a, b) => {
+    if ((a.status === 'Paid') !== (b.status === 'Paid')) return a.status === 'Paid' ? 1 : -1;
+    if (a.status === 'Paid') return a.paid_date < b.paid_date ? 1 : -1;
+    return a.due_date < b.due_date ? -1 : a.due_date > b.due_date ? 1 : 0;
+  });
+  const chips = [['all', 'All'], ['unpaid', 'Unpaid'], ['pastdue', 'Past Due'], ['paid', 'Paid']].map(([k, l]) => `<button type="button" class="chip" data-act="billFilter" data-f="${k}" aria-pressed="${f === k}">${l}</button>`).join('');
+  const rows = list.length ? `<div class="rows">${list.map((b) => {
+    const st = billStatus(b, td);
+    const pill = st === 'Paid' ? `<span class="pill ok">Paid ${esc(fmtDate(b.paid_date))}</span>` : st === 'Past Due' ? '<span class="pill bad">Past Due</span>' : b.due_date === td ? '<span class="pill warn">Due today</span>' : '<span class="pill">Unpaid</span>';
+    return `<div class="row-item${st === 'Past Due' ? ' past-due' : ''}"><div><div class="title">${esc(b.payee)}</div>
+      <div class="meta">Due ${esc(fmtDate(b.due_date))}${b.account_id ? ' · from ' + esc(acctName(DB, b.account_id)) : ''}${b.category ? ' · ' + esc(b.category) : ''}</div>
+      ${b.notes ? `<div class="meta">${esc(b.notes)}</div>` : ''}
+      <div class="pills">${pill}${b.is_recurring ? `<span class="pill info">Repeats ${esc(b.frequency)}${b.end_date ? ' until ' + esc(fmtDate(b.end_date)) : ''}</span>` : ''}</div></div>
+      <div class="amount">${fmt(toCents(b.amount))}</div>
+      <div class="row-actions">${b.status === 'Paid' ? btn('Mark unpaid', 'unpayBill', 'sm', { id: b.id }) : btn('Mark paid', 'payBill', 'sm primary', { id: b.id })}${btn('Edit', 'editBill', 'sm', { id: b.id })}${btn('Delete', 'delBill', 'sm danger-ghost', { id: b.id })}</div></div>`;
+  }).join('')}</div>` : `<div class="card"><p class="muted">${DB.bills.length ? 'No bills in this view.' : 'No bills yet. Add the bills you need to pay and Dinero will flag any that go past due.'}</p></div>`;
+  return head + `<div class="stats three">${stat('unpaid', 'Unpaid', unpaid)}${stat('pastdue', 'Past due', past, past.length ? 'bad' : '')}${stat('paid', 'Paid', paid)}</div>
+    <div class="chips" role="group" aria-label="Filter bills">${chips}</div>${rows}`;
+};
+ACTIONS.billFilter = (d) => { UI.bills.filter = UI.bills.filter === d.f && d.f !== 'all' ? 'all' : d.f; render(); };
+ACTIONS.newBill = () => openBillForm(null);
+ACTIONS.editBill = (d) => openBillForm(d.id);
+ACTIONS.delBill = async (d) => {
+  const b = DB.bills.find((x) => x.id === d.id);
+  if (b && await confirmBox({ title: 'Delete bill?', body: `Delete the bill <b>${esc(b.payee)}</b> due ${esc(fmtDate(b.due_date))}?${b.status === 'Paid' ? ' Its payment stays in the register.' : ''}`, ok: 'Delete', danger: true })) {
+    deleteBill(DB, b.id); commit('Bill deleted');
+  }
+};
+ACTIONS.unpayBill = async (d) => {
+  const b = DB.bills.find((x) => x.id === d.id);
+  if (!b) return;
+  const nb = b.next_bill_id ? DB.bills.find((x) => x.id === b.next_bill_id && x.status === 'Unpaid') : null;
+  if (await confirmBox({ title: 'Mark unpaid?', body: `This removes the ${fmt(toCents(b.amount))} payment entry from the register and restores the account balance.${nb ? ` The next bill it created (due ${esc(fmtDate(nb.due_date))}) is removed too.` : ''}`, ok: 'Mark unpaid' })) {
+    unpayBill(DB, b); commit('Bill marked unpaid');
+  }
+};
+function openBillForm(id) {
+  const b = id ? DB.bills.find((x) => x.id === id) : null;
+  const v = b || { payee: '', amount: 0, due_date: today(), account_id: (DB.accounts.find((a) => a.is_active) || {}).id || '', category: '', notes: '', is_recurring: false, frequency: 'Monthly', end_date: '' };
+  formModal({
+    title: b ? 'Edit bill' : 'New bill',
+    fields: `<div class="form-grid two">
+      <label class="field span2">Payee<input name="payee" list="payeeList" value="${esc(v.payee)}" maxlength="120"></label>
+      <label class="field">Amount due<input name="amount" inputmode="decimal" value="${b ? fixed2(toCents(v.amount)) : ''}" placeholder="0.00"></label>
+      <label class="field">Due date<input type="date" name="due_date" value="${esc(v.due_date)}"></label>
+      <label class="field">Pay from account<select name="account_id">${acctOptions(v.account_id, { blank: '— Choose when paying —' })}</select></label>
+      <label class="field">Category<select name="category">${catOptions(v.category)}</select></label>
+      <label class="field span2">Notes<input name="notes" value="${esc(v.notes)}" maxlength="200"></label>
+      <label class="toggle span2"><input type="checkbox" name="is_recurring"${v.is_recurring ? ' checked' : ''}> This bill repeats</label>
+      <label class="field rec-f">Frequency<select name="frequency">${freqOptions(v.frequency || 'Monthly')}</select></label>
+      <label class="field rec-f">End date (optional)<input type="date" name="end_date" value="${esc(v.end_date)}"></label></div>
+      <p class="muted small rec-f">When a repeating bill is paid, it stays in Paid history and a new Unpaid bill is created one period later (unless that passes the end date).</p>${payeeDatalist()}`,
+    onSubmit(form) {
+      const amt = amountField(form, 'amount', 'Amount due');
+      if (amt.error) return amt.error;
+      const res = saveBill(DB, { id, payee: fv(form, 'payee'), amountC: amt.c, due_date: fv(form, 'due_date'), account_id: fv(form, 'account_id'), category: fv(form, 'category'), notes: fv(form, 'notes'), is_recurring: fv(form, 'is_recurring'), frequency: fv(form, 'frequency'), end_date: fv(form, 'end_date') });
+      if (res.error) return res.error;
+      commit(b ? 'Bill saved' : 'Bill added');
+    },
+    after(form, m) {
+      const sync = () => m.querySelectorAll('.rec-f').forEach((el) => el.classList.toggle('hidden', !form.elements.is_recurring.checked));
+      form.elements.is_recurring.addEventListener('change', sync);
+      sync();
+    },
+  });
+}
+ACTIONS.payBill = (d) => {
+  const b = DB.bills.find((x) => x.id === d.id);
+  if (!b || b.status === 'Paid') return;
+  formModal({
+    title: 'Mark bill paid',
+    submit: 'Mark paid',
+    fields: `<p><b>${esc(b.payee)}</b> · due ${esc(fmtDate(b.due_date))}</p><div class="form-grid two">
+      <label class="field">Date paid<input type="date" name="date" value="${today()}"></label>
+      <label class="field">Amount<input name="amount" inputmode="decimal" value="${fixed2(toCents(b.amount))}"></label>
+      <label class="field">Account<select name="account_id">${acctOptions(b.account_id, { blank: 'Choose…' })}</select></label>
+      <label class="field">Check #<input name="check_number" inputmode="numeric" maxlength="20"></label>
+      <label class="toggle span2"><input type="checkbox" name="cleared"> Cleared (off = Pending)</label></div>
+      <p class="muted small">This adds a money-out entry to the register${b.is_recurring ? ' and creates the next Unpaid bill' : ''}.</p>`,
+    onSubmit(form) {
+      const amt = amountField(form, 'amount', 'Amount');
+      if (amt.error) return amt.error;
+      const res = payBill(DB, b, { date: fv(form, 'date'), amountC: amt.c, account_id: fv(form, 'account_id'), check_number: fv(form, 'check_number'), cleared: fv(form, 'cleared') });
+      if (res.error) return res.error;
+      commit(`Paid ${b.payee}${res.next ? ` — next bill due ${fmtDate(res.next.due_date)}` : ''}`);
+    },
+  });
+};
+
+/* =====================================================================
+   REPORTS
+   ===================================================================== */
+function repFilters() {
+  const r = UI.rep;
+  if (r.preset !== 'custom') { const pr = presetRange(r.preset, today()); if (pr) [r.start, r.end] = pr; }
+  return { start: r.start, end: r.end, acct: r.acct, cat: r.cat, payee: r.payee.trim() };
+}
+function repScopeLines(f) {
+  const range = !f.start && !f.end ? 'All time' : `${f.start ? fmtDate(f.start) : 'the beginning'} to ${f.end ? fmtDate(f.end) : 'today'}`;
+  const catLabel = !f.cat ? 'All categories' : f.cat === '__none__' ? 'Uncategorized' : f.cat === '__transfer__' ? 'Transfers' : f.cat + (f.cat.includes(' > ') ? '' : ' (includes its subcategories)');
+  return [`Dates: ${range}`, `Account: ${f.acct ? acctName(DB, f.acct) : 'All accounts'}`, `Category: ${catLabel}`, `Payee: ${f.payee || 'Any payee'}`];
+}
+VIEWS.reports = function () {
+  const r = UI.rep;
+  repFilters();
+  const presets = [['this_month', 'This month'], ['last_month', 'Last month'], ['ytd', 'Year to date'], ['this_year', 'This year'], ['last_year', 'Last year'], ['all', 'All time'], ['custom', 'Custom dates']];
+  return pageHead('Reports') + `<div class="card"><div class="form-grid two">
+      <label class="field">Date range<select data-bind="repPreset">${presets.map(([k, l]) => `<option value="${k}"${k === r.preset ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+      <div class="form-grid two" style="gap:8px"><label class="field">Start<input type="date" data-bind="repStart" value="${esc(r.start)}"></label><label class="field">End<input type="date" data-bind="repEnd" value="${esc(r.end)}"></label></div>
+      <label class="field">Account<select data-bind="repAcct"><option value="">All accounts</option>${acctOptions(r.acct, { includeInactive: true })}</select></label>
+      <label class="field">Category / subcategory<select data-bind="repCat">${catOptions(r.cat, { blank: 'All categories', extras: [['__none__', 'Uncategorized'], ['__transfer__', 'Transfers']] })}</select></label>
+      <label class="field span2">Payee<input type="search" list="payeeList" data-bind="repPayee" value="${esc(r.payee)}" placeholder="Any payee — pick from the list or type to search"></label>
+    </div>${payeeDatalist()}<div class="btn-row">${btn('Reset filters', 'repReset', 'sm')}</div></div>
+    <div id="repResults" class="section">${reportResults()}</div>`;
+};
+function reportResults() {
+  const f = repFilters();
+  const rows = filterTxns(DB, f);
+  const t = totalsOf(rows);
+  const sum = categorySummary(DB, rows);
+  return `<div class="stats">
+      <div class="stat"><div class="label">Money in</div><div class="value in">${fmt(t.inC)}</div></div>
+      <div class="stat"><div class="label">Money out</div><div class="value">${fmt(t.outC)}</div></div>
+      <div class="stat"><div class="label">Net</div><div class="value ${moneyCls(t.net)}">${fmt(t.net)}</div></div>
+      <div class="stat"><div class="label">Count</div><div class="value">${t.count}</div></div></div>
+    <div class="page-head"><h2>Entries</h2><div class="actions">${btn('Download CSV', 'repCsv', 'sm')}${btn('Download PDF', 'repPdf', 'sm primary')}</div></div>
+    <p class="muted small">${esc(repScopeLines(f).join(' · '))}</p>
+    ${txnTable(rows, { showAcct: true })}
+    <section class="section"><div class="page-head"><h2>Category summary for this report</h2><div class="actions">${btn('Summary PDF', 'repSumPdf', 'sm')}</div></div>
+    ${summaryTable(sum, 'No categorized entries in this report.')}</section>`;
+}
+function refreshReport() { const el = $('#repResults'); if (el) el.innerHTML = reportResults(); }
+BINDS.repPreset = (v) => { UI.rep.preset = v; if (v === 'custom') { /* keep current dates */ } render(); };
+BINDS.repStart = (v) => { UI.rep.start = v; UI.rep.preset = 'custom'; render(); };
+BINDS.repEnd = (v) => { UI.rep.end = v; UI.rep.preset = 'custom'; render(); };
+BINDS.repAcct = (v) => { UI.rep.acct = v; refreshReport(); };
+BINDS.repCat = (v) => { UI.rep.cat = v; refreshReport(); };
+BINDS.repPayee = (v) => { UI.rep.payee = v; refreshReport(); };
+ACTIONS.repReset = () => { UI.rep = { preset: 'this_month', start: '', end: '', acct: '', cat: '', payee: '' }; render(); };
+ACTIONS.repCsv = () => {
+  const f = repFilters();
+  const rows = filterTxns(DB, f);
+  const b = bal(), t = totalsOf(rows);
+  const out = [['date', 'account', 'payee', 'description', 'category', 'check_number', 'amount', 'money_in', 'money_out', 'cleared', 'running_balance', 'cleared_balance']];
+  for (const x of rows) {
+    const c = toCents(x.amount), rb = b.row.get(x.id) || { run: 0, clr: 0 };
+    out.push([x.date, acctName(DB, x.account_id), x.payee, x.description, x.category, x.check_number, fixed2(c), c > 0 ? fixed2(c) : '', c < 0 ? fixed2(-c) : '', x.cleared ? 'Cleared' : 'Pending', fixed2(rb.run), fixed2(rb.clr)]);
+  }
+  out.push([], ['Totals'], ['Money In', fixed2(t.inC)], ['Money Out', fixed2(t.outC)], ['Net', fixed2(t.net)], ['Count', t.count], [], ...repScopeLines(f).map((l) => [l]));
+  downloadFile(`dinero-report-${fileStamp()}.csv`, toCSV(out), 'text/csv');
+  toast('CSV downloaded');
+};
+ACTIONS.repPdf = () => {
+  const f = repFilters();
+  const rows = filterTxns(DB, f);
+  const b = bal(), t = totalsOf(rows);
+  const bytes = makeTablePdf({
+    title: 'Custom Report', landscape: true, scopeLines: repScopeLines(f),
+    columns: [{ label: 'Date', w: 7 }, { label: 'Account', w: 10 }, { label: 'Payee', w: 13 }, { label: 'Description', w: 13 }, { label: 'Category', w: 13 }, { label: 'Check #', w: 5 }, { label: 'In', w: 7, align: 'right' }, { label: 'Out', w: 7, align: 'right' }, { label: 'Status', w: 6 }, { label: 'Balance', w: 8, align: 'right' }, { label: 'Cleared bal.', w: 8, align: 'right' }],
+    rows: rows.map((x) => {
+      const c = toCents(x.amount), rb = b.row.get(x.id) || { run: 0, clr: 0 };
+      return { cells: [x.date, acctName(DB, x.account_id), x.payee, x.description, x.category, x.check_number, c > 0 ? fmt(c) : '', c < 0 ? fmt(-c) : '', x.cleared ? 'Cleared' : 'Pending', fmt(rb.run), fmt(rb.clr)] };
+    }),
+    totals: [['Money In', fmt(t.inC)], ['Money Out', fmt(t.outC)], ['Net', fmt(t.net)], ['Count', String(t.count)]],
+  });
+  downloadPdf(`dinero-report-${fileStamp()}.pdf`, bytes);
+};
+function catSummaryPdf(title, scopeLines, sum) {
+  return makeTablePdf({
+    title, scopeLines: [...scopeLines, 'Parent categories include their subcategories. Transfers are not counted.'],
+    columns: [{ label: 'Category', w: 40 }, { label: 'Money in', w: 15, align: 'right' }, { label: 'Money out', w: 15, align: 'right' }, { label: 'Net', w: 15, align: 'right' }, { label: 'Count', w: 8, align: 'right' }],
+    rows: sum.rows.map((r) => ({ cells: [r.name, r.inC ? fmt(r.inC) : '', r.outC ? fmt(r.outC) : '', fmt(r.net), String(r.count)], bold: !r.depth, indent: r.depth ? 16 : 0 })),
+    totals: [['Money In', fmt(sum.totals.inC)], ['Money Out', fmt(sum.totals.outC)], ['Net', fmt(sum.totals.net)], ['Count', String(sum.totals.count)]],
+    emptyText: 'No categorized entries in this period.',
+  });
+}
+ACTIONS.repSumPdf = () => {
+  const f = repFilters();
+  downloadPdf(`dinero-category-summary-${fileStamp()}.pdf`, catSummaryPdf('Category Summary', repScopeLines(f), categorySummary(DB, filterTxns(DB, f))));
+};
+ACTIONS.pdfCatSummary = () => {
+  const s = catSummaryScope();
+  downloadPdf(`dinero-category-summary-${fileStamp()}.pdf`, catSummaryPdf('Category Summary', [`Period: ${s.label}`, 'Accounts: All accounts'], categorySummary(DB, s.txns)));
+};
+ACTIONS.pdfCats = () => {
+  downloadPdf(`dinero-categories-${fileStamp()}.pdf`, makeTablePdf({
+    title: 'All Categories', scopeLines: [`${plural(DB.categories.length, 'category', 'categories')}, subcategories listed under their parents`],
+    columns: [{ label: 'Category', w: 50 }, { label: 'Kind', w: 15 }, { label: 'Times used', w: 15, align: 'right' }],
+    rows: catTree(DB).map(({ cat, path, depth }) => ({ cells: [depth ? cat.name : cat.name, cat.kind, String(categoryUsage(DB, path))], bold: !depth, indent: depth ? 18 : 0 })),
+    emptyText: 'No categories.',
+  }));
+};
+ACTIONS.pdfRec = () => {
+  const list = [...DB.recurring].sort((a, b) => (a.next_due_date < b.next_due_date ? -1 : 1));
+  downloadPdf(`dinero-recurring-${fileStamp()}.pdf`, makeTablePdf({
+    title: 'Recurring Entries', landscape: true, scopeLines: [`All recurring entries (${list.length})`],
+    columns: [{ label: 'Payee', w: 14 }, { label: 'Amount', w: 9, align: 'right' }, { label: 'Account', w: 11 }, { label: 'Category', w: 14 }, { label: 'Frequency', w: 9 }, { label: 'Next due', w: 9 }, { label: 'Status', w: 7 }, { label: 'Auto-post', w: 16 }],
+    rows: list.map((r) => {
+      const c = (r.direction === 'In' ? 1 : -1) * toCents(r.amount);
+      return { cells: [r.payee, (c > 0 ? '+' : '') + fmt(c), acctName(DB, r.account_id), r.category, r.frequency, r.next_due_date, recurringEnded(r) ? 'Ended' : r.status, r.auto_post ? `Yes, ${r.days_in_advance} days early (on ${autoPostDate(r)})` : 'No'] };
+    }),
+    emptyText: 'No recurring entries.',
+  }));
+};
+ACTIONS.pdfBills = () => {
+  const td = today();
+  const list = DB.bills.filter((b) => b.status !== 'Paid').sort((a, b) => (a.due_date < b.due_date ? -1 : 1));
+  const total = list.reduce((s, b) => s + toCents(b.amount), 0);
+  const past = list.filter((b) => billStatus(b, td) === 'Past Due');
+  downloadPdf(`dinero-open-bills-${fileStamp()}.pdf`, makeTablePdf({
+    title: 'Open Bills', scopeLines: [`Unpaid bills only, as of ${fmtDate(td)}`, `Past due rows are shaded red (${past.length} past due, ${fmt(past.reduce((s, b) => s + toCents(b.amount), 0))})`],
+    columns: [{ label: 'Payee', w: 18 }, { label: 'Amount', w: 10, align: 'right' }, { label: 'Due date', w: 10 }, { label: 'Pay from', w: 14 }, { label: 'Category', w: 15 }, { label: 'Status', w: 9 }],
+    rows: list.map((b) => {
+      const pd = billStatus(b, td) === 'Past Due';
+      return { cells: [b.payee, fmt(toCents(b.amount)), b.due_date, acctName(DB, b.account_id), b.category, pd ? 'PAST DUE' : 'Unpaid'], fill: pd ? [0.99, 0.87, 0.86] : null, colors: pd ? [null, null, null, null, null, [0.7, 0.1, 0.1]] : null };
+    }),
+    totals: [['Total unpaid', fmt(total)], ['Bills', String(list.length)]],
+    emptyText: 'No unpaid bills.',
+  }));
+};
+
+/* =====================================================================
+   SYNC / SETTINGS
+   ===================================================================== */
+VIEWS.settings = function () {
+  const c = countsOf(DB);
+  const daysSince = DEV.lastExported ? daysBetween(localDateStr(new Date(DEV.lastExported)), today()) : null;
+  const unsaved = DB.accounts.length && (!DEV.lastExported || (DEV.lastChanged && DEV.lastChanged > DEV.lastExported));
+  const reminder = !DB.accounts.length ? '' : unsaved
+    ? `<div class="note warn">You have changes on this device that are not in a backup yet${daysSince != null ? ` (last backup ${daysSince === 0 ? 'today' : plural(daysSince, 'day') + ' ago'})` : ''}. Download a backup and save it to iCloud Drive.</div>`
+    : `<div class="note">Your latest changes are in the backup you downloaded ${fmtDateTime(DEV.lastExported)}.</div>`;
+  const check = UI.check;
+  return pageHead('Sync / Settings') + `<div class="settings-grid">
+    <section class="card full"><h2>Move data between devices</h2>
+      <p>Your data is saved <b>in this browser, on this device only</b>. Your iPhone and your Mac each keep their own copy — they do not update each other by themselves. To move your data, download a backup on the device you just used, save it to iCloud Drive, then import it on the other device.</p>
+      <div class="note bad" style="margin:10px 0"><b>Conflict warning:</b> If you edit on two devices without exporting and importing in between, the two copies will disagree, and importing one will replace the other. Always export from the device you just used, and import on the next device before editing there.</div>
+      ${reminder}
+      <div class="btn-row">${btn('Download backup', 'backupDown', 'primary')}${btn('Import backup', 'backupUp')}</div>
+      <dl class="kv" style="margin-top:14px"><dt>Data last changed here</dt><dd>${fmtDateTime(DEV.lastChanged)}</dd><dt>Backup last downloaded here</dt><dd>${fmtDateTime(DEV.lastExported)}</dd><dt>Backup last imported here</dt><dd>${fmtDateTime(DEV.lastImported)}</dd></dl>
+      <div class="counts">${Object.entries(c).map(([k, n]) => `<div><b>${n}</b><span>${k}</span></div>`).join('')}</div>
+      <p class="muted small" style="margin-top:10px">Browsers and phones can clear website storage, so the backup file in iCloud Drive is your durable copy. Download a fresh one whenever you have entered something you would not want to retype.</p>
+    </section>
+    <section class="card"><h2>Excel &amp; CSV</h2>
+      <p>Export a workbook to edit in Excel, then import it back. Sheets and column headings: Accounts, Categories, Transactions, Transfers, Recurring, Bills.</p>
+      <div class="btn-row">${btn('Export to Excel', 'xlsxDown', 'primary')}${btn('Export CSV (zip)', 'csvDown')}${btn('Import from Excel', 'xlsxUp')}</div></section>
+    <section class="card"><h2>Auto-post</h2>
+      <p>Dinero has no server, so it cannot run while it is closed. Auto-post runs every time you open the app and once an hour while it is open. Entries post dated on their due date, and a due date is never posted twice.</p>
+      <p class="muted small">Last check: ${fmtDateTime(DEV.lastAutoCheck)}</p>
+      <div class="btn-row">${btn('Run auto-post check now', 'autoCheck')}</div></section>
+    <section class="card"><h2>Data check</h2>
+      <p>Looks for problems such as entries pointing at a missing account, a transfer with only one side, a subcategory whose parent is missing, or a paid bill with no linked entry.</p>
+      <div class="btn-row">${btn('Run data check', 'dataCheck')}</div>
+      ${check ? (check.length ? `<div class="note warn" style="margin-top:12px"><b>${plural(check.length, 'problem')} found:</b><ul class="problems">${check.map((p) => `<li>${esc(p)}</li>`).join('')}</ul></div>` : '<div class="note" style="margin-top:12px">No problems found.</div>') : ''}</section>
+    <section class="card"><h2>Start over</h2>
+      <p>Erase all Dinero data <b>on this device only</b>. Backup and Excel files in iCloud Drive are not touched.</p>
+      <div class="btn-row">${btn('Start over…', 'startOver', 'danger-ghost')}</div></section>
+    <section class="card full"><p class="muted small">Dinero ${APP_VERSION} · storage: ${esc(Storage.engine)} · everything runs in this browser; nothing is sent anywhere.</p></section>
+  </div>`;
+};
+ACTIONS.dataCheck = () => { UI.check = dataCheck(DB); render(); };
+ACTIONS.autoCheck = () => autoPostCheck(true);
+ACTIONS.backupDown = () => {
+  downloadFile(`dinero-backup-${fileStamp()}.json`, JSON.stringify(makeBackup(DB), null, 1), 'application/json');
+  DEV.lastExported = new Date().toISOString();
+  save(); render();
+  toast('Backup downloaded — save it to iCloud Drive');
+};
+ACTIONS.backupUp = async () => {
+  const file = await pickFile('.json,application/json');
+  if (!file) return;
+  let parsed;
+  try { parsed = parseBackup(await file.text()); } catch (e) { toast(e.message, true); return; }
+  const c = countsOf(parsed.db);
+  const cur = countsOf(DB);
+  const ok = await confirmBox({
+    title: 'Import this backup?', ok: 'Replace data on this device', danger: true,
+    body: `<p><b>${esc(file.name)}</b></p><dl class="kv"><dt>Backup made</dt><dd>${parsed.exported_at ? fmtDateTime(parsed.exported_at) : 'unknown'}</dd>
+      ${Object.keys(c).map((k) => `<dt>${k}</dt><dd>${c[k]} <span class="muted">(now ${cur[k]})</span></dd>`).join('')}</dl>
+      <div class="note bad">Importing <b>replaces everything</b> currently on this device with the backup. Anything entered here since that backup was made will be lost.</div>`,
+  });
+  if (!ok) return;
+  DB = parsed.db;
+  DEV.lastImported = new Date().toISOString();
+  DEV.lastExported = DEV.lastImported; // this device now matches a saved backup
+  UI.reg.acct = '';
+  commit('Backup imported');
+  autoPostCheck(false);
+};
+ACTIONS.xlsxDown = () => {
+  downloadFile(`dinero-${fileStamp()}.xlsx`, buildWorkbook(DB), 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  toast('Excel workbook downloaded');
+};
+ACTIONS.csvDown = () => {
+  downloadFile(`dinero-csv-${fileStamp()}.zip`, buildCsvZip(DB), 'application/zip');
+  toast('CSV files downloaded (zip with one CSV per sheet)');
+};
+ACTIONS.xlsxUp = async () => {
+  const file = await pickFile('.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  if (!file) return;
+  let book;
+  try { book = await readXlsx(await file.arrayBuffer()); } catch (e) { toast('Could not read that file: ' + e.message, true); return; }
+  const found = Object.keys(SHEET_COLUMNS).map((n) => { const k = Object.keys(book).find((x) => norm(x) === norm(n)); return `<li>${n}: ${k ? plural(Math.max(0, (book[k] || []).filter((r) => r && r.some((v) => v != null && String(v).trim() !== '')).length - 1), 'row') : '<span class="neg">not found</span>'}</li>`; }).join('');
+  formModal({
+    title: 'Import from Excel', submit: 'Check file', wide: true,
+    fields: `<p><b>${esc(file.name)}</b></p><ul>${found}</ul>
+      <div class="field"><span>How should this workbook be used?</span>
+      <label class="toggle"><input type="radio" name="mode" value="replace" checked style="width:20px;height:20px"> Replace all data on this device with the workbook</label>
+      <label class="toggle"><input type="radio" name="mode" value="add" style="width:20px;height:20px"> Add the workbook's new rows to the existing data (rows whose id already exists are skipped)</label></div>
+      <p class="muted small">The file is checked first. Nothing changes unless every row is valid and you confirm.</p>`,
+    async onSubmit(form, m) {
+      const mode = radioVal(form, 'mode');
+      const res = importWorkbook(DB, book, mode);
+      if (res.errors.length) {
+        const shown = res.errors.slice(0, 200);
+        m.querySelector('.form-error').innerHTML = `Nothing was imported. Fix ${plural(res.errors.length, 'problem')} in the workbook and try again:<ul class="errors">${shown.map((e) => `<li>${esc(e)}</li>`).join('')}</ul>${res.errors.length > shown.length ? `<p>…and ${res.errors.length - shown.length} more.</p>` : ''}`;
+        m.querySelector('.form-error').scrollIntoView({ block: 'nearest' });
+        return null;
+      }
+      const s = res.stats, c = countsOf(res.db);
+      closeModal(m, true);
+      const ok = await confirmBox({
+        title: mode === 'replace' ? 'Replace all data?' : 'Add these rows?', ok: mode === 'replace' ? 'Replace data' : 'Add rows', danger: mode === 'replace',
+        body: `<p>The workbook passed every check.</p><dl class="kv">${Object.keys(c).map((k) => `<dt>${k}</dt><dd>${mode === 'add' ? `+${s.added[k] || 0} → ` : ''}${c[k]}</dd>`).join('')}</dl>
+          ${s.generated ? `<p>${plural(s.generated, 'row')} had a blank id, so new ids were generated.</p>` : ''}
+          ${s.skipped ? `<p>${plural(s.skipped, 'row')} already in the app ${s.skipped === 1 ? 'was' : 'were'} skipped.</p>` : ''}
+          ${s.sidesCreated ? `<p>${plural(s.sidesCreated, 'transfer')} had no register entries, so both sides were created.</p>` : ''}
+          ${res.warnings.length ? `<div class="note warn"><ul class="problems">${res.warnings.slice(0, 50).map((w) => `<li>${esc(w)}</li>`).join('')}</ul></div>` : ''}
+          ${mode === 'replace' ? '<div class="note bad" style="margin-top:10px">This replaces everything currently on this device.</div>' : ''}`,
+      });
+      if (!ok) return null;
+      DB = res.db;
+      UI.reg.acct = '';
+      commit(mode === 'replace' ? 'Workbook imported' : 'Rows added from workbook');
+      autoPostCheck(false);
+      return null;
+    },
+  });
+};
+ACTIONS.startOver = async () => {
+  const ok = await confirmBox({
+    title: 'Erase all data on this device?', ok: 'Erase everything here', danger: true,
+    body: `<p>This deletes every account, entry, category, transfer, recurring entry, and bill <b>stored in this browser on this device</b>. It cannot be undone.</p>
+      <p>It does <b>not</b> delete backup or Excel files saved in iCloud Drive, and it does not change your other devices.</p>
+      ${DB.accounts.length && (!DEV.lastExported || DEV.lastChanged > DEV.lastExported) ? '<div class="note warn">You have changes that are not in a backup. Consider downloading a backup first.</div>' : ''}`,
+  });
+  if (!ok) return;
+  DB = emptyDb();
+  DEV = { lastChanged: new Date().toISOString(), lastExported: null, lastImported: null, lastAutoCheck: DEV.lastAutoCheck };
+  UI.reg.acct = ''; UI.check = null;
+  await Storage.clearAll();
+  commit('All data on this device was erased');
+};
+
+/* =====================================================================
+   AUTO-POST + STARTUP
+   ===================================================================== */
+function autoPostCheck(manual) {
+  const posted = runAutoPost(DB, today());
+  DEV.lastAutoCheck = new Date().toISOString();
+  if (posted.length) {
+    commit(`Auto-posted ${plural(posted.length, 'recurring entry', 'recurring entries')}`);
+  } else {
+    save();
+    if (manual) { render(); toast('Auto-post check done — nothing is due to post right now.'); }
+  }
+  return posted;
+}
+/* ---------- Opening animation ----------
+   The logo appears big in the middle of the screen, spins in like a coin, then swoops up into its place in
+   the top-left corner while the cover fades. Then the tabs and the page slide into place one after another.
+   Tap anywhere to skip. Skipped for people who turn on Reduce Motion. */
+function playIntro() {
+  const brand = $('.topbar .brand');
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || !brand || !brand.animate) return;
+  document.body.classList.add('intro');
+  const r = brand.getBoundingClientRect();
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const veil = document.createElement('div');
+  veil.className = 'intro-veil';
+  const fly = brand.cloneNode(true);
+  fly.classList.add('intro-fly');
+  fly.setAttribute('aria-hidden', 'true');
+  Object.assign(fly.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' });
+  const nameEl = fly.querySelector('.brand-name');
+  const letters = [...nameEl.textContent].map((ch) => { const s = document.createElement('span'); s.textContent = ch; return s; });
+  nameEl.textContent = '';
+  letters.forEach((s) => nameEl.appendChild(s));
+  document.body.append(veil, fly);
+
+  const T = 1700; // total length in ms
+  const scale = Math.max(1.6, Math.min(3, (vw * 0.62) / r.width));
+  const dx = vw / 2 - (r.left + r.width / 2), dy = vh * 0.45 - (r.top + r.height / 2);
+  const at = (x, y, s) => `translate(${x}px, ${y}px) scale(${s})`;
+  const anims = [];
+  // Whole brand: pop in at center, hold, then swoop (rises first, then glides left) into the corner.
+  anims.push(fly.animate([
+    { transform: at(dx, dy + 30, scale * 0.7), opacity: 0, offset: 0, easing: 'cubic-bezier(.2,.9,.3,1.3)' },
+    { transform: at(dx, dy, scale), opacity: 1, offset: 0.26 },
+    { transform: at(dx, dy - 4, scale * 1.03), offset: 0.46, easing: 'cubic-bezier(.55,0,.4,1)' },
+    { transform: at(dx * 0.62, dy * 0.18, 1 + (scale - 1) * 0.45), offset: 0.74, easing: 'cubic-bezier(.2,.7,.25,1.08)' },
+    { transform: 'none', opacity: 1, offset: 1 },
+  ], { duration: T, fill: 'both' }));
+  // The $ tile flips in like a coin, then spins once while it flies.
+  anims.push(fly.querySelector('.logo').animate([
+    { transform: 'rotateY(-180deg) scale(.4)', offset: 0 },
+    { transform: 'rotateY(12deg) scale(1.08)', offset: 0.22 },
+    { transform: 'none', offset: 0.32 },
+    { transform: 'none', offset: 0.48, easing: 'cubic-bezier(.45,0,.2,1)' },
+    { transform: 'rotateY(360deg)', offset: 0.92 },
+    { transform: 'rotateY(360deg)', offset: 1 },
+  ], { duration: T, fill: 'both' }));
+  // Letters of "Dinero" rise in one by one.
+  letters.forEach((s, i) => anims.push(s.animate([
+    { transform: 'translateY(.6em)', opacity: 0 }, { transform: 'none', opacity: 1 },
+  ], { duration: 380, delay: 180 + i * 55, easing: 'cubic-bezier(.2,.8,.2,1.15)', fill: 'both' })));
+  // Cover fades away during the swoop, revealing the page.
+  anims.push(veil.animate([{ opacity: 1 }, { opacity: 1, offset: 0.5 }, { opacity: 0 }], { duration: T, easing: 'ease-in', fill: 'both' }));
+
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    revealPage();
+    fly.remove();
+    veil.remove();
+    document.body.classList.remove('intro');
+  };
+  anims[0].finished.then(finish, finish);
+  veil.addEventListener('click', () => anims.forEach((a) => a.finish()));
+  setTimeout(finish, T + 5000); // safety net in case the browser never reports the end
+}
+// Tabs slide in from the left, then the page's blocks rise into place one after another.
+function revealPage() {
+  const tabs = [...document.querySelectorAll('#tabs button')];
+  tabs.forEach((b, i) => b.animate([
+    { transform: 'translateX(-14px)', opacity: 0 }, { transform: 'none', opacity: 1 },
+  ], { duration: 380, delay: i * 40, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' }));
+  const blocks = [];
+  for (const el of $('#main').children) {
+    if (el.matches('.grid, .stats, .settings-grid')) blocks.push(...el.children);
+    else blocks.push(el);
+  }
+  blocks.slice(0, 14).forEach((el, i) => el.animate([
+    { transform: 'translateY(18px) scale(.985)', opacity: 0 }, { transform: 'none', opacity: 1 },
+  ], { duration: 520, delay: 120 + i * 70, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' }));
+}
+
+async function init() {
+  const engine = await Storage.init();
+  if (engine === 'none') showBanner('This browser is blocking storage (for example a private window), so nothing you enter will be kept. Open Dinero in a normal Safari or Chrome window.');
+  const data = await Storage.get('data');
+  if (data) DB = normalizeDb(data);
+  const dev = await Storage.get('device');
+  if (dev) Object.assign(DEV, dev);
+  autoPostCheck(false);
+  render();
+  playIntro();
+  setInterval(() => autoPostCheck(false), 60 * 60 * 1000);
+  let lastDay = today();
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    const posted = autoPostCheck(false);
+    if (!posted.length && today() !== lastDay) render();
+    lastDay = today();
+  });
+}
+init();
+
+// Offline support when Dinero is served from a web address (Home Screen app). Opening the file directly skips this.
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => { /* offline cache is optional */ }); });
+}
+
+</script>
+</body>
+</html>
