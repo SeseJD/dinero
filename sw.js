@@ -1,6 +1,6 @@
 // Dinero offline helper. Keeps a copy of the app files on the device so it opens with no connection.
 // It never touches your register data, which stays in the browser's storage on the device.
-const CACHE = 'dinero-368091f56ff3';
+const CACHE = 'dinero-ea0f79f08e61';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
